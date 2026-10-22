@@ -77,7 +77,6 @@ p { margin: 0; }
 .cty { fill: none; stroke: var(--county); stroke-width: .7; vector-effect: non-scaling-stroke; pointer-events: none; }
 .callout { stroke: var(--ink-2); stroke-width: 1.2; vector-effect: non-scaling-stroke; pointer-events: none; }
 .callout-head { fill: var(--ink-2); }
-.clabel.context { font-style: italic; fill: var(--ink-3); }
 .hatch-area { stroke: none; pointer-events: none; }
 .hatch-line { stroke: var(--hatch); stroke-width: 1.4; }
 .dist { fill: none; stroke: var(--outline); stroke-width: 2.4; vector-effect: non-scaling-stroke; pointer-events: none; stroke-linejoin: round; }
@@ -234,7 +233,7 @@ function keepInside(t, x) {
   else if (x + half > M.w - pad) t.setAttribute("x", M.w - pad - half);
 }
 
-function buildMap(svgId, own, other) {
+function buildMap(svgId, version, own, other) {
   const svg = document.getElementById(svgId);
   svg.setAttribute("viewBox", `0 0 ${M.w} ${M.h}`);
   const defs = el("defs", {}, svg);
@@ -244,32 +243,27 @@ function buildMap(svgId, own, other) {
   const precG = el("g", {}, svg);
   const ctyG = el("g", {}, svg);
   const hatchG = el("g", {}, svg);
-  for (const c of M.counties) {
+  for (const c of [...M.counties, ...M.context]) {
+    if (!c.p) continue;
     el("path", { d: c.p, class: "cty" }, ctyG);
-    if (HATCHED.includes(c.c)) el("path", { d: c.p, class: "hatch-area", fill: `url(#${hid})` }, hatchG);
+    if (c[version] && HATCHED.includes(c.c)) el("path", { d: c.p, class: "hatch-area", fill: `url(#${hid})` }, hatchG);
   }
-  for (const c of M.context) el("path", { d: c.p, class: "cty" }, ctyG);
   el("path", { d: other, class: "ghost" }, svg);
   el("path", { d: own, class: "dist" }, svg);
   const labG = el("g", {}, svg);
   const aid = svgId + "-arrow";
   const head = el("marker", { id: aid, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
   el("path", { d: "M0,0L10,5L0,10Z", class: "callout-head" }, head);
-  for (const c of M.counties) {
+  for (const c of [...M.counties, ...M.context]) {
     const t = el("text", { x: c.x, y: c.y + 7, class: "clabel" }, labG);
     t.textContent = c.c;
     keepInside(t, c.x);
     if (c.tip) el("line", { x1: c.x, y1: c.y - 12, x2: c.tip[0], y2: c.tip[1], class: "callout", "marker-end": `url(#${aid})` }, labG);
   }
-  for (const c of M.context) {
-    const t = el("text", { x: c.x, y: c.y + 7, class: "clabel context" }, labG);
-    t.textContent = c.c;
-    keepInside(t, c.x);
-  }
   return precG;
 }
-const gOld = buildMap("map-old", M.old_outline, M.new_outline);
-const gNew = buildMap("map-new", M.new_outline, M.old_outline);
+const gOld = buildMap("map-old", "old", M.old_outline, M.new_outline);
+const gNew = buildMap("map-new", "new", M.new_outline, M.old_outline);
 
 function drawLayer(g, key) {
   g.replaceChildren();

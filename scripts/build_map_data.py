@@ -137,11 +137,15 @@ def county_outlines(frame, precincts, counties, district=None):
     outlines = outlines[outlines.index.isin(counties)]
     features = []
     for county, row in outlines.iterrows():
-        feature = {"c": county.title(), "p": frame.path(row.geometry)}
+        feature = {"c": county.title()}
+        # Granville gets a callout and no outline; the district line marks its District 1 part
         if county == "GRANVILLE":
             feature.update(granville_callout(frame, row.geometry, district))
         else:
+            feature["p"] = frame.path(row.geometry)
             feature["x"], feature["y"] = frame.xy(*row.geometry.representative_point().coords[0])
+        # Which versions of the district include the county, so each map hatches only its own
+        feature["old"], feature["new"] = int(county in OLD_COUNTIES), int(county in NEW_COUNTIES)
         features.append(feature)
     return features
 
