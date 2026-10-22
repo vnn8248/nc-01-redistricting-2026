@@ -3,9 +3,9 @@ Rebuild 2024 results inside the 2024 (S.L. 2023-145) and 2026 (S.L. 2025-95)
 versions of District 1.
 
 A district total = every row for its whole counties (precinct and
-administrative: early voting sites, absentee, provisional) + the six Granville
-precincts. Because the counties are whole, early and absentee votes are fully
-counted, which a precinct-only rebuild couldn't do.
+administrative: early voting sites, absentee, provisional) + the Granville
+precincts in District 1. Because the counties are whole, early and absentee
+votes are fully counted, which a precinct-only rebuild couldn't do.
 
 Writes data/processed/rebuild.json.
 
@@ -22,7 +22,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import (  # noqa: E402
     GRANVILLE_PRECINCTS, HOUSE_CONTEST, NEW_COUNTIES, OLD_COUNTIES, PROCESSED,
-    RESULTS_2024, STATEWIDE_CONTESTS,
+    RESULTS_2024, STATEWIDE_CONTESTS, STRAY_HOUSE_PRECINCTS,
 )
 
 
@@ -62,11 +62,15 @@ def two_party(df):
 def check_old_lines(house):
     """
     The 2024 House race only ran inside the old lines, so rebuilding it from
-    OLD_COUNTIES + Granville must reproduce its full total.
+    OLD_COUNTIES + Granville, plus the stray WOEL ballot, must reproduce its
+    full total.
     """
 
     assert set(house["County"]) == set(OLD_COUNTIES) | {"GRANVILLE"}, "county list doesn't match 2024 NC-1"
-    assert district_rows(house, OLD_COUNTIES)["votes"].sum() == house["votes"].sum(), "rebuild misses NC-1 votes"
+    keys = list(zip(house["County"], house["Precinct"]))
+    stray = house[[key in STRAY_HOUSE_PRECINCTS for key in keys]]["votes"].sum()
+    assert stray <= 1, f"{stray} NC-1 votes in precincts outside the district"
+    assert district_rows(house, OLD_COUNTIES)["votes"].sum() + stray == house["votes"].sum(), "rebuild misses NC-1 votes"
 
 
 def build(results):
@@ -88,7 +92,7 @@ def build(results):
         counties.append({"county": county.title(), "status": status, **two_party(pres[pres["County"] == county])})
 
     granville = pres[(pres["County"] == "GRANVILLE") & pres["Precinct"].isin(GRANVILLE_PRECINCTS)]
-    counties.append({"county": "Granville (6 precincts)", "status": "kept", **two_party(granville)})
+    counties.append({"county": f"Granville ({len(GRANVILLE_PRECINCTS)} precincts)", "status": "kept", **two_party(granville)})
 
     return {"house_2024": two_party(house), "contests": contests, "counties": counties}
 

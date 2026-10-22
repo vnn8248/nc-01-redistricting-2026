@@ -11,6 +11,9 @@ Layers
 - house26:  2026 precincts on the 2026 NC-1 ballot; all zeros until results
             are posted (rerun scripts/fetch_data.py --only results_2026)
 
+Granville precincts are clipped to the district line, so a split precinct only
+shades its District 1 part.
+
 Only votes reported by precinct can be mapped. `county_unmapped` gives each
 county's share of 2024 presidential votes in administrative units (early
 voting sites, absentee, provisional).
@@ -27,11 +30,11 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import MultiPolygon, Polygon, box
+from shapely.geometry import LineString, MultiPolygon, Polygon, box
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import (  # noqa: E402
-    CONTEXT_COUNTIES, CRS, GRANVILLE_PRECINCTS, HOUSE_CONTEST, NEW_COUNTIES, OLD_COUNTIES, PLAN_2023,
+    CONTEXT_COUNTIES, CRS, GRANVILLE_PRECINCTS, GRANVILLE_SPLIT, HOUSE_CONTEST, NEW_COUNTIES, OLD_COUNTIES, PLAN_2023,
     PLAN_2025, PRECINCTS_2024, PRECINCTS_2026, PROCESSED, RESULTS_2024, RESULTS_2026,
 )
 from rebuild import load_results  # noqa: E402
@@ -87,31 +90,59 @@ def precinct_results(contest_rows):
     return out
 
 
-def layer(frame, precincts, results):
+def layer(frame, precincts, results, district, counties):
+    results = {key: res for key, res in results.items() if in_district(key, counties)}
     missing = [key for key in results if key not in precincts.index]
     if missing:
         raise ValueError(f"{len(missing)} results precincts have no polygon, e.g. {missing[:5]}")
 
-    return [
-        {"c": key[0].title(), "n": str(precincts.loc[key, "enr_desc"]).title(),
-         "p": frame.path(precincts.loc[key, "geometry"]), **res}
-        for key, res in results.items()
-    ]
+    features = []
+    for key, res in results.items():
+        geometry = precincts.loc[key, "geometry"]
+        if key[0] == "GRANVILLE":
+            geometry = geometry.intersection(district)
+        feature = {"c": key[0].title(), "n": str(precincts.loc[key, "enr_desc"]).title(), "p": frame.path(geometry), **res}
+        if key[0] == "GRANVILLE" and key[1] in GRANVILLE_SPLIT:
+            feature["split"] = 1
+        features.append(feature)
+    return features
 
 
-def in_new_district(key):
+def in_district(key, counties):
     county, precinct = key
-    return county in NEW_COUNTIES or (county == "GRANVILLE" and precinct in GRANVILLE_PRECINCTS)
+    return county in counties or (county == "GRANVILLE" and precinct in GRANVILLE_PRECINCTS)
 
 
-def county_outlines(frame, precincts, counties):
+def granville_callout(frame, county, district):
+    """Place Granville's label below the county, with an arrow up to its District 1 part.
+
+    Most of Granville is outside the frame, so a label inside it would crowd Vance's.
+    """
+    inside = county.intersection(district)
+    # Keep the centered label clear of the map's left edge
+    half = 42
+    x = max(frame.xy(inside.centroid.x, 0)[0], half + 2)
+    px = frame.minx + x / frame.scale
+    top, low = frame.maxy, frame.maxy - frame.height / frame.scale
+    column = LineString([(px, top), (px, low)])
+    tip = frame.xy(px, column.intersection(inside).bounds[1])[1] + 4
+    # The county's lowest point anywhere under the label, so no border runs through it
+    under = box(px - half / frame.scale, low, px + half / frame.scale, top)
+    bottom = frame.xy(px, county.intersection(under).bounds[1])[1]
+    return {"x": x, "y": round(bottom + 20, 1), "tip": [x, round(tip, 1)]}
+
+
+def county_outlines(frame, precincts, counties, district=None):
     outlines = precincts.reset_index().dissolve(by="county")
     outlines = outlines[outlines.index.isin(counties)]
     features = []
     for county, row in outlines.iterrows():
-        # Label the part inside the frame; most of Granville is outside it
-        x, y = frame.xy(*row.geometry.intersection(frame.bounds()).representative_point().coords[0])
-        features.append({"c": county.title(), "p": frame.path(row.geometry), "x": x, "y": y})
+        feature = {"c": county.title(), "p": frame.path(row.geometry)}
+        if county == "GRANVILLE":
+            feature.update(granville_callout(frame, row.geometry, district))
+        else:
+            feature["x"], feature["y"] = frame.xy(*row.geometry.representative_point().coords[0])
+        features.append(feature)
     return features
 
 
@@ -126,6 +157,7 @@ def main():
     old_d1 = district_one(PLAN_2023, "DISTRICT")
     new_d1 = district_one(PLAN_2025, "ID")
     frame = Frame([old_d1, new_d1])
+    old_shape, new_shape = old_d1.geometry.union_all(), new_d1.geometry.union_all()
 
     results24, results26 = load_results(RESULTS_2024), load_results(RESULTS_2026)
     p24, p26 = load_precincts(PRECINCTS_2024), load_precincts(PRECINCTS_2026)
@@ -140,15 +172,15 @@ def main():
     out = {
         "w": WIDTH,
         "h": frame.height,
-        "old_outline": frame.path(old_d1.geometry.union_all()),
-        "new_outline": frame.path(new_d1.geometry.union_all()),
-        "counties": county_outlines(frame, p26, counties),
+        "old_outline": frame.path(old_shape),
+        "new_outline": frame.path(new_shape),
+        "counties": county_outlines(frame, p26, counties, old_shape | new_shape),
         "context": county_outlines(frame, p26, CONTEXT_COUNTIES),
         "layers": {
-            "house24": layer(frame, p24, house24),
-            "pres_old": layer(frame, p24, {k: v for k, v in pres_by_precinct.items() if k in house24}),
-            "pres_new": layer(frame, p24, {k: v for k, v in pres_by_precinct.items() if in_new_district(k)}),
-            "house26": layer(frame, p26, house26),
+            "house24": layer(frame, p24, house24, old_shape, OLD_COUNTIES),
+            "pres_old": layer(frame, p24, pres_by_precinct, old_shape, OLD_COUNTIES),
+            "pres_new": layer(frame, p24, pres_by_precinct, new_shape, NEW_COUNTIES),
+            "house26": layer(frame, p26, house26, new_shape, NEW_COUNTIES),
         },
         "county_unmapped": unmapped_share(pres, counties),
     }

@@ -1,10 +1,10 @@
 """
 Shared paths and district definitions for the NC-1 redraw analysis.
 
-Both versions of District 1 are whole-county districts except Granville, whose
-District 1 slice is the same six precincts in both plans. The county lists below
-were read off the plan shapefiles; scripts/rebuild.py checks them against the
-2024 House results.
+Both versions of District 1 are whole-county districts except Granville, where
+both plans draw the same line: four whole precincts and part of a fifth. The
+county lists below were read off the plan shapefiles; scripts/rebuild.py checks
+them against the 2024 House results.
 """
 
 from pathlib import Path
@@ -38,7 +38,14 @@ NEW_COUNTIES = [
     "NORTHAMPTON", "PAMLICO", "PASQUOTANK", "PERQUIMANS", "TYRRELL", "VANCE",
     "WARREN", "WASHINGTON",
 ]
-GRANVILLE_PRECINCTS = {"ANTI", "CRDL", "EAOX", "SALM", "SOOX", "WOEL"}
+# Granville precincts with voters in District 1. The plan line runs through SALM,
+# and its precinct results can't be divided, so all of its votes are counted.
+GRANVILLE_PRECINCTS = {"ANTI", "CRDL", "EAOX", "SALM", "SOOX"}
+GRANVILLE_SPLIT = {"SALM"}
+
+# WOEL is wholly in District 13 (plan shapefiles; NCSBE voter file), but one 2024
+# WOEL ballot was counted in the NC-1 race. The House check allows for it.
+STRAY_HOUSE_PRECINCTS = {("GRANVILLE", "WOEL")}
 
 # Counties in neither version that the district wraps around; the maps outline
 # and label them so the hole reads as a county, not missing data

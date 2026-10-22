@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NC-1 Redraw</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,6 +75,8 @@ p { margin: 0; }
 .prec { stroke: var(--surface); stroke-width: .5; vector-effect: non-scaling-stroke; }
 .prec:hover, .prec.on { stroke: var(--outline); stroke-width: 1.6; }
 .cty { fill: none; stroke: var(--county); stroke-width: .7; vector-effect: non-scaling-stroke; pointer-events: none; }
+.callout { stroke: var(--ink-2); stroke-width: 1.2; vector-effect: non-scaling-stroke; pointer-events: none; }
+.callout-head { fill: var(--ink-2); }
 .clabel.context { font-style: italic; fill: var(--ink-3); }
 .hatch-area { stroke: none; pointer-events: none; }
 .hatch-line { stroke: var(--hatch); stroke-width: 1.4; }
@@ -113,6 +120,8 @@ p { margin: 0; }
 @media (prefers-reduced-motion: no-preference) { .prec { transition: fill .25s ease; } }
 </style>
 
+</head>
+<body>
 <div class="page">
   <header class="prose">
     <div class="eyebrow">U.S. House · North Carolina District 1 · Nov 3, 2026</div>
@@ -120,8 +129,8 @@ p { margin: 0; }
     <p class="lede">Don Davis won the 1st District by 1.7 points in 2024. In October 2025 the legislature traded four of its inland counties for six coastal ones, and the same 2024 voters would have given Trump an 11-point win inside the new lines instead of 3.</p>
     <div class="figures" aria-label="Key figures">
       <div class="fig"><b>D+1.7</b><span>Davis over Buckhout, 2024</span></div>
-      <div class="fig"><b>R+3.0</b><span>Trump, 2024 lines</span></div>
-      <div class="fig"><b>R+11.2</b><span>Trump, 2026 lines</span></div>
+      <div class="fig"><b>R+3.1</b><span>Trump, 2024 lines</span></div>
+      <div class="fig"><b>R+11.3</b><span>Trump, 2026 lines</span></div>
     </div>
   </header>
 
@@ -156,7 +165,7 @@ p { margin: 0; }
     <div style="display:grid;gap:14px;min-width:0">
       <div class="prose">
         <h2>The same 2024 votes, counted inside each version</h2>
-        <p>Every 2024 statewide race moves 6 to 8 points toward Republicans on the new lines. Davis ran 4.7 points ahead of Harris in 2024. The same edge on the new lines would still lose by about 6.5.</p>
+        <p>Every 2024 statewide race moves 6 to 8 points toward Republicans on the new lines. Davis ran 4.8 points ahead of Harris in 2024. The same edge on the new lines would still lose by about 6.5.</p>
       </div>
       <div class="chart"><svg id="dumbbell" role="img" aria-label="Margins of five 2024 statewide races and the NC-1 House race on the 2024 and 2026 district lines"></svg></div>
       <div class="legend" id="db-legend"></div>
@@ -173,11 +182,11 @@ p { margin: 0; }
   <section class="notes">
     <h2>How this was built</h2>
     <ul>
-      <li>District lines are the legislature's official plans: S.L. 2023-145, used in 2024, and S.L. 2025-95, used in 2026. Both are whole-county districts except for the same six Granville precincts.</li>
-      <li>The rebuilt totals add every 2024 vote in each district's counties, including early, absentee and provisional ballots, plus the six Granville precincts. Rebuilding the 2024 House race on the old lines reproduces its official total exactly.</li>
+      <li>District lines are the legislature's official plans: S.L. 2023-145, used in 2024, and S.L. 2025-95, used in 2026. Both are whole-county districts except in Granville, where both plans draw the same line through five precincts. The line splits one of them, Salem (SALM), so its votes are all counted even though about 45% of its voters are in District 13.</li>
+      <li>The rebuilt totals add every 2024 vote in each district's counties, including early, absentee and provisional ballots, plus the five Granville precincts. Rebuilding the 2024 House race on the old lines reproduces its official total exactly.</li>
       <li>The maps can only shade votes reported by precinct. <span id="hatch-note"></span> Those counties are hatched. Their precinct colors mostly show election-day voters, who leaned more Republican than early voters.</li>
       <li>Margins are the Democrat's share minus the Republican's share of all votes cast in the race, so third-party votes count in the total.</li>
-      <li>The "Davis on new lines" estimate assumes he runs the same 4.7 points ahead of the top of the ticket. It's a yardstick, not a forecast.</li>
+      <li>The "Davis on new lines" estimate assumes he runs the same 4.8 points ahead of the top of the ticket. It's a yardstick, not a forecast.</li>
     </ul>
     <p>Sources: <a href="https://www.ncleg.gov/Redistricting">NC General Assembly redistricting plans</a>, <a href="https://dl.ncsbe.gov/?prefix=ENRS/2024_11_05/">NCSBE certified 2024 precinct results</a>, <a href="https://dl.ncsbe.gov/?prefix=PrecinctMaps/">NCSBE precinct shapefiles</a> (July 2024 and August 2026), <a href="https://dl.ncsbe.gov/?prefix=ENRS/2026_11_03/">NCSBE 2026 results template</a>.</p>
   </section>
@@ -243,10 +252,14 @@ function buildMap(svgId, own, other) {
   el("path", { d: other, class: "ghost" }, svg);
   el("path", { d: own, class: "dist" }, svg);
   const labG = el("g", {}, svg);
+  const aid = svgId + "-arrow";
+  const head = el("marker", { id: aid, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0L10,5L0,10Z", class: "callout-head" }, head);
   for (const c of M.counties) {
     const t = el("text", { x: c.x, y: c.y + 7, class: "clabel" }, labG);
     t.textContent = c.c;
     keepInside(t, c.x);
+    if (c.tip) el("line", { x1: c.x, y1: c.y - 12, x2: c.tip[0], y2: c.tip[1], class: "callout", "marker-end": `url(#${aid})` }, labG);
   }
   for (const c of M.context) {
     const t = el("text", { x: c.x, y: c.y + 7, class: "clabel context" }, labG);
@@ -283,8 +296,8 @@ function render() {
       ? `Davis vs. Buckhout by precinct, Nov 3, 2026: Davis ${(tn.d / tn.t * 100).toFixed(1)}%, Buckhout ${(tn.r / tn.t * 100).toFixed(1)}% of votes counted in precincts.`
       : "Davis vs. Buckhout rematch on the Nov 3, 2026 ballot. Results pending.";
   } else {
-    capOld.textContent = "Harris vs. Trump by precinct. Trump won these lines by 3.0 points.";
-    capNew.textContent = "Harris vs. Trump by precinct, 2024 votes in the 2026 district. Trump would have won by 11.2 points.";
+    capOld.textContent = "Harris vs. Trump by precinct. Trump won these lines by 3.1 points.";
+    capNew.textContent = "Harris vs. Trump by precinct, 2024 votes in the 2026 district. Trump would have won by 11.3 points.";
   }
   document.getElementById("mode-house").setAttribute("aria-pressed", mode === "house");
   document.getElementById("mode-pres").setAttribute("aria-pressed", mode === "pres");
@@ -328,7 +341,8 @@ function showTip(e) {
       ${other > 0 ? `<tr><td>Others</td><td>${fmt(other)}</td><td>${(other / f.t * 100).toFixed(1)}%</td></tr>` : ""}
     </table><div class="foot">${c.race}: ${marginLabel(m)} · ${fmt(f.t)} ${HATCHED.includes(f.c) ? "election-day votes" : "votes"}</div>`;
   }
-  const note = HATCHED.includes(f.c) ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>` : "";
+  let note = HATCHED.includes(f.c) ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>` : "";
+  if (f.split) note += `<div class="foot">Part of this precinct is outside District 1. ${key.startsWith("house") ? "Only its District 1 voters cast these votes." : "These are the whole precinct's votes."}</div>`;
   tip.innerHTML = `<h4>${f.n}<small>${f.c} County</small></h4>${body}${note}`;
   tip.hidden = false;
   const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
@@ -432,3 +446,5 @@ document.getElementById("hatch-note").textContent =
 
 render();
 </script>
+</body>
+</html>

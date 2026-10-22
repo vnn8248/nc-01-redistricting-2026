@@ -10,9 +10,9 @@ The project builds one self-contained page, `site/index.html`, with:
 
 ## Findings so far
 
-On the 2024 lines, Trump won District 1 by 3.0 points. With the same 2024 votes counted inside the 2026 lines, he wins by 11.2. Every 2024 statewide race shifts 6 to 8 points toward Republicans. Davis ran 4.7 points ahead of Harris in 2024; that same edge on the new lines would lose by about 6.5.
+On the 2024 lines, Trump won District 1 by 3.1 points. With the same 2024 votes counted inside the 2026 lines, he wins by 11.3. Every 2024 statewide race shifts 6 to 8 points toward Republicans. Davis ran 4.8 points ahead of Harris in 2024; that same edge on the new lines would lose by about 6.5.
 
-The redraw removed Greene, Lenoir, Wayne and Wilson counties (Trump +9 combined) and added Beaufort, Carteret, Craven, Dare, Hyde and Pamlico (Trump +29). Both versions include the same six Granville precincts.
+The redraw removed Greene, Lenoir, Wayne and Wilson counties (Trump +9 combined) and added Beaufort, Carteret, Craven, Dare, Hyde and Pamlico (Trump +29). Both versions draw the same line through Granville County.
 
 ## Data
 
@@ -27,7 +27,9 @@ Raw data isn't committed. `scripts/fetch_data.py` downloads all of it into `data
 
 ## Method
 
-Both versions of District 1 are whole-county districts except Granville, where both include the same six precincts. A district's rebuilt total is every 2024 vote in its counties, including early voting, absentee and provisional ballots, plus those six precincts. `scripts/rebuild.py` checks the method by rebuilding the 2024 House race on the old lines, which must match its official total.
+Both versions of District 1 are whole-county districts except Granville, where both plans draw the same line through five precincts. It splits one of them, Salem (SALM): about 55% of its registered voters are in District 1, and since its results can't be divided, all of its votes are counted. A district's rebuilt total is every 2024 vote in its counties, including early voting, absentee and provisional ballots, plus those five precincts. The maps clip Granville precincts to the district line.
+
+West Oxford Elementary (WOEL) is wholly in District 13 according to the plan shapefiles and the NCSBE voter file, but one 2024 WOEL ballot was counted in the NC-1 race. It's left out of the rebuild; the House check allows for that one vote. `scripts/rebuild.py` checks the method by rebuilding the 2024 House race on the old lines, which must match its official total.
 
 The maps can only shade votes reported by precinct. Some counties report early votes by voting site, so 52% to 78% of their votes can't be placed in a precinct; the page hatches those counties. NCSBE's later precinct-sort files would assign those votes to precincts, but NCSBE adds statistical noise to them and says they shouldn't be used for reporting, so they aren't used here.
 
