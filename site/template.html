@@ -311,7 +311,7 @@ function showTip(e) {
       <tr><td><span class="dot" style="background:var(--d3)"></span>${c.d}</td><td>${fmt(f.d)}</td><td>${(f.d / f.t * 100).toFixed(1)}%</td></tr>
       <tr><td><span class="dot" style="background:var(--r3)"></span>${c.r}</td><td>${fmt(f.r)}</td><td>${(f.r / f.t * 100).toFixed(1)}%</td></tr>
       ${other > 0 ? `<tr><td>Others</td><td>${fmt(other)}</td><td>${(other / f.t * 100).toFixed(1)}%</td></tr>` : ""}
-    </table><div class="foot">${c.race}: ${marginLabel(m)} · ${fmt(f.t)} votes</div>`;
+    </table><div class="foot">${c.race}: ${marginLabel(m)} · ${fmt(f.t)} ${HATCHED.includes(f.c) ? "election-day votes" : "votes"}</div>`;
   }
   const note = HATCHED.includes(f.c) ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>` : "";
   tip.innerHTML = `<h4>${f.n}<small>${f.c} County</small></h4>${body}${note}`;
