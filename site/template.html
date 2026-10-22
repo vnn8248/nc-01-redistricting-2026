@@ -70,6 +70,7 @@ p { margin: 0; }
 .prec { stroke: var(--surface); stroke-width: .5; vector-effect: non-scaling-stroke; }
 .prec:hover, .prec.on { stroke: var(--outline); stroke-width: 1.6; }
 .cty { fill: none; stroke: var(--county); stroke-width: .7; vector-effect: non-scaling-stroke; pointer-events: none; }
+.clabel.context { font-style: italic; fill: var(--ink-3); }
 .hatch-area { stroke: none; pointer-events: none; }
 .hatch-line { stroke: var(--hatch); stroke-width: 1.4; }
 .dist { fill: none; stroke: var(--outline); stroke-width: 2.4; vector-effect: non-scaling-stroke; pointer-events: none; stroke-linejoin: round; }
@@ -217,6 +218,13 @@ const VIEWS = {
 };
 let mode = "house";
 
+// Shift a centered label that would run past the map's left or right edge
+function keepInside(t, x) {
+  const half = t.getComputedTextLength() / 2, pad = 4;
+  if (x - half < pad) t.setAttribute("x", pad + half);
+  else if (x + half > M.w - pad) t.setAttribute("x", M.w - pad - half);
+}
+
 function buildMap(svgId, own, other) {
   const svg = document.getElementById(svgId);
   svg.setAttribute("viewBox", `0 0 ${M.w} ${M.h}`);
@@ -231,12 +239,19 @@ function buildMap(svgId, own, other) {
     el("path", { d: c.p, class: "cty" }, ctyG);
     if (HATCHED.includes(c.c)) el("path", { d: c.p, class: "hatch-area", fill: `url(#${hid})` }, hatchG);
   }
+  for (const c of M.context) el("path", { d: c.p, class: "cty" }, ctyG);
   el("path", { d: other, class: "ghost" }, svg);
   el("path", { d: own, class: "dist" }, svg);
   const labG = el("g", {}, svg);
   for (const c of M.counties) {
     const t = el("text", { x: c.x, y: c.y + 7, class: "clabel" }, labG);
     t.textContent = c.c;
+    keepInside(t, c.x);
+  }
+  for (const c of M.context) {
+    const t = el("text", { x: c.x, y: c.y + 7, class: "clabel context" }, labG);
+    t.textContent = c.c;
+    keepInside(t, c.x);
   }
   return precG;
 }

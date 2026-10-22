@@ -40,6 +40,10 @@ NEW_COUNTIES = [
 ]
 GRANVILLE_PRECINCTS = {"ANTI", "CRDL", "EAOX", "SALM", "SOOX", "WOEL"}
 
+# Counties in neither version that the district wraps around; the maps outline
+# and label them so the hole reads as a county, not missing data
+CONTEXT_COUNTIES = ["PITT"]
+
 # 2024 statewide races used to compare the two versions of the district
 STATEWIDE_CONTESTS = {
     "US PRESIDENT": "President",

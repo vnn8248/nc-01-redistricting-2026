@@ -27,11 +27,11 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import MultiPolygon, Polygon
+from shapely.geometry import MultiPolygon, Polygon, box
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import (  # noqa: E402
-    CRS, GRANVILLE_PRECINCTS, HOUSE_CONTEST, NEW_COUNTIES, OLD_COUNTIES, PLAN_2023,
+    CONTEXT_COUNTIES, CRS, GRANVILLE_PRECINCTS, HOUSE_CONTEST, NEW_COUNTIES, OLD_COUNTIES, PLAN_2023,
     PLAN_2025, PRECINCTS_2024, PRECINCTS_2026, PROCESSED, RESULTS_2024, RESULTS_2026,
 )
 from rebuild import load_results  # noqa: E402
@@ -54,6 +54,9 @@ class Frame:
         self.minx, self.maxy = minx - pad, maxy + pad
         self.scale = WIDTH / (maxx - minx + 2 * pad)
         self.height = round((maxy - miny + 2 * pad) * self.scale)
+
+    def bounds(self):
+        return box(self.minx, self.maxy - self.height / self.scale, self.minx + WIDTH / self.scale, self.maxy)
 
     def xy(self, x, y):
         return round((x - self.minx) * self.scale, 1), round((self.maxy - y) * self.scale, 1)
@@ -106,7 +109,8 @@ def county_outlines(frame, precincts, counties):
     outlines = outlines[outlines.index.isin(counties)]
     features = []
     for county, row in outlines.iterrows():
-        x, y = frame.xy(*row.geometry.representative_point().coords[0])
+        # Label the part inside the frame; most of Granville is outside it
+        x, y = frame.xy(*row.geometry.intersection(frame.bounds()).representative_point().coords[0])
         features.append({"c": county.title(), "p": frame.path(row.geometry), "x": x, "y": y})
     return features
 
@@ -139,6 +143,7 @@ def main():
         "old_outline": frame.path(old_d1.geometry.union_all()),
         "new_outline": frame.path(new_d1.geometry.union_all()),
         "counties": county_outlines(frame, p26, counties),
+        "context": county_outlines(frame, p26, CONTEXT_COUNTIES),
         "layers": {
             "house24": layer(frame, p24, house24),
             "pres_old": layer(frame, p24, {k: v for k, v in pres_by_precinct.items() if k in house24}),
