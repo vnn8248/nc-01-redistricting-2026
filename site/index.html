@@ -172,7 +172,7 @@ p { margin: 0; }
     <div style="display:grid;gap:14px;min-width:0">
       <div class="prose">
         <h2>The county swap</h2>
-        <p>The four counties removed voted for Trump by 9 points combined. The six added voted for him by 29, and they cast more votes. The 18 counties kept in both versions split almost exactly even.</p>
+        <p>The four counties removed voted for Trump by 9 points combined. The six added voted for him by 29, and they cast more votes. The 17 counties kept in both versions, plus the same part of Granville, split almost exactly even.</p>
       </div>
       <div class="chart"><svg id="swap" role="img" aria-label="2024 presidential margin in each county removed from or added to District 1"></svg></div>
     </div>
@@ -827,7 +827,7 @@ document.getElementById("hatch-note").textContent =
   }
   const kg = group(kept);
   const kl = el("text", { x: 0, y: yEnd + 54, class: "rowlabel" }, svg);
-  kl.textContent = `Kept in both (18 counties and part of Granville): ${marginLabel(kg.m)}`;
+  kl.textContent = `Kept in both (17 counties and part of Granville): ${marginLabel(kg.m)}`;
   const kt = el("text", { x: W - 8, y: yEnd + 54, "text-anchor": "end", class: "muted" }, svg); kt.textContent = fmt(kg.t);
 })();
 
