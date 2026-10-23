@@ -2,8 +2,8 @@
 Embed data/processed/*.json into site/template.html and write site/index.html,
 a single self-contained page.
 
-Numbers in the page's text are {{placeholders}} filled from rebuild.json, so the
-prose always matches the data. The build fails if any placeholder is left.
+Numbers in the page's text are {{placeholders}} filled from rebuild.json and
+race_data.json, so the prose always matches the data. The build fails if any placeholder is left.
 
 Usage:
     python scripts/build_page.py
@@ -26,13 +26,18 @@ def embed(json_text):
 NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
 
 
+def article(n):
+    """"a" or "an" before a number written in digits: an 8, an 11, an 18, an 80."""
+    return "an" if n in ("8", "11", "18") or n.startswith("8") else "a"
+
+
 def margin_label(m):
     # Matches marginLabel() in the template
     return "Even" if abs(m) < 0.05 else f"{'D' if m > 0 else 'R'}+{abs(m):.1f}"
 
 
-def text_numbers(rebuild):
-    """The figures written into the page's prose, from rebuild.json."""
+def text_numbers(rebuild, race):
+    """The figures written into the page's prose, from rebuild.json and race_data.json."""
 
     house = rebuild["house_2024"]
     pres = next(c for c in rebuild["contests"] if c["contest"] == "President")
@@ -49,6 +54,10 @@ def text_numbers(rebuild):
     added, added_margin = group("added")
     kept, _ = group("kept")
 
+    def share(area, group):
+        counts = race["districts"][area]
+        return f"{counts[group] / counts['total'] * 100:.0f}"
+
     return {
         "house_label": margin_label(house["margin"]),
         "house_abs": f"{abs(house['margin']):.1f}",
@@ -60,16 +69,22 @@ def text_numbers(rebuild):
         "pres_new_abs": f"{abs(pres['new']['margin']):.1f}",
         "pres_old_int": f"{abs(pres['old']['margin']):.0f}",
         "pres_new_int": f"{abs(pres['new']['margin']):.0f}",
+        "pres_new_article": article(f"{abs(pres['new']['margin']):.0f}"),
         "shift_min": f"{min(shifts):.0f}",
         "shift_max": f"{max(shifts):.0f}",
         "davis_edge": f"{edge:.1f}",
         "davis_new_abs": f"{abs(pres['new']['margin'] + edge):.1f}",
-        "removed_word": NUMBER_WORDS[len(removed)],
-        "added_word": NUMBER_WORDS[len(added)],
+        # Partial-county rows (Granville, Swansboro) are in the groups' margins but aren't whole counties
+        "removed_word": NUMBER_WORDS[sum(not c.get("part") for c in removed)],
+        "added_word": NUMBER_WORDS[sum(not c.get("part") for c in added)],
         "removed_abs": f"{abs(removed_margin):.0f}",
         "added_abs": f"{abs(added_margin):.0f}",
-        # The Granville precincts are a "kept" row too, but not a whole county
-        "kept_counties": str(sum(not c["county"].startswith("Granville") for c in kept)),
+        "kept_counties": str(sum(not c.get("part") for c in kept)),
+        "race_old_black": share("old", "black"),
+        "race_new_black": share("new", "black"),
+        "race_removed_white": share("removed", "white"),
+        "race_added_white": share("added", "white"),
+        "people_per_dot": str(race["people_per_dot"]),
     }
 
 
@@ -82,11 +97,13 @@ def fill(template, values):
 
 def main():
     rebuild = (PROCESSED / "rebuild.json").read_text()
-    template = fill((SITE / "template.html").read_text(), text_numbers(json.loads(rebuild)))
+    race = (PROCESSED / "race_data.json").read_text()
+    template = fill((SITE / "template.html").read_text(), text_numbers(json.loads(rebuild), json.loads(race)))
     page = (
         template
         .replace("__MAPDATA__", embed((PROCESSED / "map_data.json").read_text()))
         .replace("__REBUILD__", embed(rebuild))
+        .replace("__RACEDATA__", embed(race))
     )
 
     out = SITE / "index.html"

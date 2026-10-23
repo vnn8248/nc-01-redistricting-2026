@@ -1,323 +1,1060 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NC-1 Redraw</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
-<style>
-/* Layout: one reading column for text; the two maps sit side by side on wide screens and stack on phones. */
-:root {
-  --bg: #f6f7f8;
-  --surface: #ffffff;
-  --ink: #18212c;
-  --ink-2: #4a5563;
-  --ink-3: #6f7a88;
-  --rule: #d9dee4;
-  --county: #8a95a3;
-  --outline: #18212c;
-  --pending: #dfe3e8;
-  --hatch: rgba(24, 33, 44, 0.42);
-  --d1: #c7daf3; --d2: #7ba8e2; --d3: #2a6bc4;
-  --r1: #f5ccc6; --r2: #e5877c; --r3: #c0362c;
-  --mid: #ebe9e6;
-  --accent: #2a6bc4;
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-data: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12171d; --surface: #1a2028; --ink: #e8ecf1; --ink-2: #b3bcc8; --ink-3: #8b96a4;
-    --rule: #2c3540; --county: #6d7886; --outline: #f2f4f7; --pending: #2a323c; --hatch: rgba(232, 236, 241, 0.45);
-    --d1: #1f3b62; --d2: #2f63ad; --d3: #5b97ea; --r1: #5a2420; --r2: #a5413a; --r3: #ec6a5f;
-    --mid: #383835; --accent: #5b97ea; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #12171d; --surface: #1a2028; --ink: #e8ecf1; --ink-2: #b3bcc8; --ink-3: #8b96a4;
-  --rule: #2c3540; --county: #6d7886; --outline: #f2f4f7; --pending: #2a323c; --hatch: rgba(232, 236, 241, 0.45);
-  --d1: #1f3b62; --d2: #2f63ad; --d3: #5b97ea; --r1: #5a2420; --r2: #a5413a; --r3: #ec6a5f;
-  --mid: #383835; --accent: #5b97ea; color-scheme: dark;
-}
-* { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
-.page { max-width: 1180px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
-.prose { max-width: 66ch; display: grid; gap: 14px; }
-.eyebrow { font-family: var(--font-data); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
-h1 { font-family: var(--font-display); font-weight: 650; font-size: clamp(36px, 6vw, 58px); line-height: 1.02; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
-h2 { font-family: var(--font-display); font-weight: 650; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.1; margin: 0; text-wrap: balance; }
-p { margin: 0; }
-.lede { font-size: 19px; color: var(--ink-2); }
-.figures { display: flex; flex-wrap: wrap; gap: 12px 40px; padding-block: 16px; border-block: 1px solid var(--rule); max-width: 66ch; }
-.fig { display: grid; gap: 2px; min-width: 0; }
-.fig b { font-family: var(--font-data); font-weight: 600; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.fig span { font-size: 13px; color: var(--ink-3); }
-.d { color: var(--d3); } .r { color: var(--r3); }
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>NC-1 Redraw</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap"
+    />
+    <style>
+      /* Layout: one reading column for text; the two maps sit side by side on wide screens and stack on phones. */
+      :root {
+        --bg: #f6f7f8;
+        --surface: #ffffff;
+        --ink: #18212c;
+        --ink-2: #4a5563;
+        --ink-3: #6f7a88;
+        --rule: #d9dee4;
+        --county: #8a95a3;
+        --outline: #18212c;
+        --pending: #dfe3e8;
+        --water: #d9e6ef;
+        --hatch: rgba(24, 33, 44, 0.42);
+        --d1: #c7daf3;
+        --d2: #7ba8e2;
+        --d3: #2a6bc4;
+        --r1: #f5ccc6;
+        --r2: #e5877c;
+        --r3: #c0362c;
+        --mid: #ebe9e6;
+        --accent: #2a6bc4;
+        /* Race groups stay off the red-blue party axis */
+        --race-black: #7446b8;
+        --race-white: #23946b;
+        --race-other: #d4b06a;
+        --race-black-ink: #ffffff;
+        --race-white-ink: #ffffff;
+        --race-other-ink: #18212c;
+        --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+        --font-body:
+          "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --font-data:
+          "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #12171d;
+          --surface: #1a2028;
+          --ink: #e8ecf1;
+          --ink-2: #b3bcc8;
+          --ink-3: #8b96a4;
+          --rule: #2c3540;
+          --county: #6d7886;
+          --outline: #f2f4f7;
+          --pending: #2a323c;
+          --water: #0e151c;
+          --hatch: rgba(232, 236, 241, 0.45);
+          --d1: #1f3b62;
+          --d2: #2f63ad;
+          --d3: #5b97ea;
+          --r1: #5a2420;
+          --r2: #a5413a;
+          --r3: #ec6a5f;
+          --mid: #383835;
+          --accent: #5b97ea;
+          color-scheme: dark;
+          --race-black: #b08cf0;
+          --race-white: #4cc796;
+          --race-other: #e8cf94;
+          --race-black-ink: #12171d;
+          --race-white-ink: #12171d;
+          --race-other-ink: #12171d;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #12171d;
+        --surface: #1a2028;
+        --ink: #e8ecf1;
+        --ink-2: #b3bcc8;
+        --ink-3: #8b96a4;
+        --rule: #2c3540;
+        --county: #6d7886;
+        --outline: #f2f4f7;
+        --pending: #2a323c;
+        --water: #0e151c;
+        --hatch: rgba(232, 236, 241, 0.45);
+        --d1: #1f3b62;
+        --d2: #2f63ad;
+        --d3: #5b97ea;
+        --r1: #5a2420;
+        --r2: #a5413a;
+        --r3: #ec6a5f;
+        --mid: #383835;
+        --accent: #5b97ea;
+        color-scheme: dark;
+        --race-black: #b08cf0;
+        --race-white: #4cc796;
+        --race-other: #e8cf94;
+        --race-black-ink: #12171d;
+        --race-white-ink: #12171d;
+        --race-other-ink: #12171d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.55;
+      }
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding-block: 40px 72px;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        display: grid;
+        gap: 40px;
+      }
+      .prose {
+        max-width: 66ch;
+        display: grid;
+        gap: 14px;
+      }
+      .eyebrow {
+        font-family: var(--font-data);
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      h1 {
+        font-family: var(--font-display);
+        font-weight: 650;
+        font-size: clamp(36px, 6vw, 58px);
+        line-height: 1.02;
+        margin: 0;
+        letter-spacing: -0.01em;
+        text-wrap: balance;
+      }
+      h2 {
+        font-family: var(--font-display);
+        font-weight: 650;
+        font-size: clamp(24px, 3.4vw, 32px);
+        line-height: 1.1;
+        margin: 0;
+        text-wrap: balance;
+      }
+      p {
+        margin: 0;
+      }
+      .lede {
+        font-size: 19px;
+        color: var(--ink-2);
+      }
+      .figures {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 40px;
+        padding-block: 16px;
+        border-block: 1px solid var(--rule);
+        max-width: 66ch;
+      }
+      .fig {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+      .fig b {
+        font-family: var(--font-data);
+        font-weight: 600;
+        font-size: 30px;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+      }
+      .fig span {
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      .d {
+        color: var(--d3);
+      }
+      .r {
+        color: var(--r3);
+      }
 
-.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-.controls .label { font-size: 14px; color: var(--ink-2); }
-.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--surface); }
-.seg button { font: 500 14px var(--font-body); color: var(--ink-2); background: none; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px 16px;
+      }
+      .controls .label {
+        font-size: 14px;
+        color: var(--ink-2);
+      }
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+        padding: 3px;
+        background: var(--surface);
+      }
+      .seg button {
+        font: 500 14px var(--font-body);
+        color: var(--ink-2);
+        background: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+      .seg button[aria-pressed="true"] {
+        background: var(--ink);
+        color: var(--bg);
+      }
+      .seg button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
 
-.maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 28px; }
-.map { display: grid; gap: 10px; min-width: 0; align-content: start; }
-.map-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.map-head h3 { font-family: var(--font-display); font-weight: 650; font-size: 22px; margin: 0; }
-.map-head .sub { font-family: var(--font-data); font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.map-frame { position: relative; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
-.map svg { display: block; width: 100%; height: auto; }
-.prec { stroke: var(--surface); stroke-width: .5; vector-effect: non-scaling-stroke; }
-.prec:hover, .prec.on { stroke: var(--outline); stroke-width: 1.6; }
-.cty { fill: none; stroke: var(--county); stroke-width: .7; vector-effect: non-scaling-stroke; pointer-events: none; }
-.callout { stroke: var(--ink-2); stroke-width: 1.2; vector-effect: non-scaling-stroke; pointer-events: none; }
-.callout-head { fill: var(--ink-2); }
-.hatch-area { stroke: none; pointer-events: none; }
-.hatch-line { stroke: var(--hatch); stroke-width: 1.4; }
-.dist { fill: none; stroke: var(--outline); stroke-width: 2.4; vector-effect: non-scaling-stroke; pointer-events: none; stroke-linejoin: round; }
-.ghost { fill: none; stroke: var(--outline); stroke-width: 1.4; stroke-dasharray: 5 4; opacity: .7; vector-effect: non-scaling-stroke; pointer-events: none; }
-.clabel { font-family: var(--font-data); font-size: 20px; font-weight: 500; fill: var(--ink-2); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; text-anchor: middle; }
-.map-note { font-size: 13px; color: var(--ink-3); }
+      .maps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+        gap: 28px;
+      }
+      .map {
+        display: grid;
+        gap: 10px;
+        min-width: 0;
+        align-content: start;
+      }
+      .map-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .map-head h3 {
+        font-family: var(--font-display);
+        font-weight: 650;
+        font-size: 22px;
+        margin: 0;
+      }
+      .map-head .sub {
+        font-family: var(--font-data);
+        font-size: 14px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .map-frame {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .map svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .prec {
+        stroke: var(--surface);
+        stroke-width: 0.5;
+        vector-effect: non-scaling-stroke;
+      }
+      .prec:hover,
+      .prec.on {
+        stroke: var(--outline);
+        stroke-width: 1.6;
+      }
+      .cty {
+        fill: none;
+        stroke: var(--county);
+        stroke-width: 0.7;
+        vector-effect: non-scaling-stroke;
+        pointer-events: none;
+      }
+      .callout {
+        stroke: var(--ink-2);
+        stroke-width: 1.2;
+        vector-effect: non-scaling-stroke;
+        pointer-events: none;
+      }
+      .callout-head {
+        fill: var(--ink-2);
+      }
+      .water {
+        fill: var(--water);
+        stroke: none;
+      }
+      .hatch-area {
+        stroke: none;
+        pointer-events: none;
+      }
+      .hatch-line {
+        stroke: var(--hatch);
+        stroke-width: 1.4;
+      }
+      .dist {
+        fill: none;
+        stroke: var(--outline);
+        stroke-width: 2.4;
+        vector-effect: non-scaling-stroke;
+        pointer-events: none;
+        stroke-linejoin: round;
+      }
+      .ghost {
+        fill: none;
+        stroke: var(--outline);
+        stroke-width: 1.4;
+        stroke-dasharray: 5 4;
+        opacity: 0.7;
+        vector-effect: non-scaling-stroke;
+        pointer-events: none;
+      }
+      .clabel {
+        font-family: var(--font-data);
+        font-size: 20px;
+        font-weight: 500;
+        fill: var(--ink-2);
+        paint-order: stroke;
+        stroke: var(--surface);
+        stroke-width: 3px;
+        stroke-linejoin: round;
+        pointer-events: none;
+        text-anchor: middle;
+      }
+      .map-note {
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      .dots {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .map-frame .overlay {
+        position: absolute;
+        inset: 0;
+      }
+      .legend .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex: none;
+      }
+      .race-key {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        padding: 2px 10px 2px 6px;
+        margin-left: -7px;
+        cursor: pointer;
+        text-align: left;
+        justify-self: start;
+      }
+      .race-key:hover {
+        border-color: var(--rule);
+      }
+      .race-key[aria-pressed="true"] {
+        border-color: var(--ink-3);
+        background: var(--surface);
+      }
+      .race-key.dim {
+        opacity: 0.45;
+      }
+      .race-key:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .race-seg {
+        transition: opacity 0.2s ease;
+      }
+      .race-seg.dim {
+        opacity: 0.18;
+      }
 
-.legend { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: flex-start; font-size: 13px; color: var(--ink-2); }
-.legend .group { display: grid; gap: 6px; }
-.legend .title { font-family: var(--font-data); font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-.ramp { display: flex; gap: 2px; align-items: center; }
-.ramp i { width: 34px; height: 12px; display: block; }
-.ramp i:first-child { border-radius: 3px 0 0 3px; } .ramp i:last-child { border-radius: 0 3px 3px 0; }
-.ramp-labels { display: flex; justify-content: space-between; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
-.key { display: flex; gap: 8px; align-items: center; }
-.swatch { width: 22px; height: 14px; border-radius: 2px; flex: none; }
-.swatch svg { width: 22px; height: 14px; display: block; }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 28px;
+        align-items: flex-start;
+        font-size: 13px;
+        color: var(--ink-2);
+      }
+      .legend .group {
+        display: grid;
+        gap: 6px;
+      }
+      .legend .title {
+        font-family: var(--font-data);
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .ramp {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+      }
+      .ramp i {
+        width: 34px;
+        height: 12px;
+        display: block;
+      }
+      .ramp i:first-child {
+        border-radius: 3px 0 0 3px;
+      }
+      .ramp i:last-child {
+        border-radius: 0 3px 3px 0;
+      }
+      .ramp-labels {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--font-data);
+        font-variant-numeric: tabular-nums;
+      }
+      .key {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .swatch {
+        width: 22px;
+        height: 14px;
+        border-radius: 2px;
+        flex: none;
+      }
+      .swatch svg {
+        width: 22px;
+        height: 14px;
+        display: block;
+      }
 
-.tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.14); padding: 10px 12px; font-size: 13px; min-width: 190px; max-width: 260px; }
-.tip h4 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
-.tip h4 small { display: block; font-weight: 400; color: var(--ink-3); font-size: 12px; }
-.tip table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.tip td { padding: 2px 0; } .tip td + td { text-align: right; padding-left: 10px; }
-.tip .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.tip .foot { margin-top: 6px; color: var(--ink-2); font-family: var(--font-data); }
+      .tip {
+        position: fixed;
+        z-index: 10;
+        pointer-events: none;
+        background: var(--surface);
+        color: var(--ink);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+        padding: 10px 12px;
+        font-size: 13px;
+        min-width: 190px;
+        max-width: 260px;
+      }
+      .tip h4 {
+        margin: 0 0 6px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .tip h4 small {
+        display: block;
+        font-weight: 400;
+        color: var(--ink-3);
+        font-size: 12px;
+      }
+      .tip table {
+        width: 100%;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+      }
+      .tip td {
+        padding: 2px 0;
+      }
+      .tip td + td {
+        text-align: right;
+        padding-left: 10px;
+      }
+      .tip .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      .tip .foot {
+        margin-top: 6px;
+        color: var(--ink-2);
+        font-family: var(--font-data);
+      }
 
-.chart { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; overflow-x: auto; }
-.chart svg { display: block; width: 100%; min-width: 560px; height: auto; }
-.axis text, .chart text { font-family: var(--font-data); font-size: 13px; fill: var(--ink-2); font-variant-numeric: tabular-nums; }
-.chart .rowlabel { font-family: var(--font-body); font-size: 14px; fill: var(--ink); }
-.chart .muted { fill: var(--ink-3); }
-.grid { stroke: var(--rule); stroke-width: 1; }
-.zero { stroke: var(--ink-3); stroke-width: 1.2; }
-.conn { stroke: var(--ink-3); stroke-width: 2; }
-.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 28px; align-items: start; }
-.notes { display: grid; gap: 10px; font-size: 14px; color: var(--ink-2); max-width: 78ch; }
-.notes h2 { font-size: 22px; color: var(--ink); }
-.notes a { color: var(--accent); }
-.notes ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
-@media (prefers-reduced-motion: no-preference) { .prec { transition: fill .25s ease; } }
-</style>
+      .chart {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 16px;
+        overflow-x: auto;
+      }
+      .chart svg {
+        display: block;
+        width: 100%;
+        min-width: 560px;
+        height: auto;
+      }
+      .axis text,
+      .chart text {
+        font-family: var(--font-data);
+        font-size: 13px;
+        fill: var(--ink-2);
+        font-variant-numeric: tabular-nums;
+      }
+      .chart .rowlabel {
+        font-family: var(--font-body);
+        font-size: 14px;
+        fill: var(--ink);
+      }
+      .chart .muted {
+        fill: var(--ink-3);
+      }
+      .grid {
+        stroke: var(--rule);
+        stroke-width: 1;
+      }
+      .zero {
+        stroke: var(--ink-3);
+        stroke-width: 1.2;
+      }
+      .conn {
+        stroke: var(--ink-3);
+        stroke-width: 2;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr));
+        gap: 28px;
+        align-items: start;
+      }
+      .notes {
+        display: grid;
+        gap: 10px;
+        font-size: 14px;
+        color: var(--ink-2);
+        max-width: 78ch;
+      }
+      .notes h2 {
+        font-size: 22px;
+        color: var(--ink);
+      }
+      .notes a {
+        color: var(--accent);
+      }
+      .notes ul {
+        margin: 0;
+        padding-left: 20px;
+        display: grid;
+        gap: 6px;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .prec {
+          transition: fill 0.25s ease;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="prose">
+        <div class="eyebrow">
+          U.S. House · North Carolina District 1 · Nov 3, 2026
+        </div>
+        <h1>NC-1, before and after the redraw</h1>
+        <p class="lede">
+          Don Davis won the 1st District by {{house_abs}} points in 2024. In
+          October 2025 the legislature traded {{removed_word}} of its inland
+          counties for {{added_word}} coastal ones, and the same 2024 voters
+          would have given Trump {{pres_new_article}} {{pres_new_int}}-point win inside the new
+          lines instead of {{pres_old_int}}.
+        </p>
+        <div class="figures" aria-label="Key figures">
+          <div class="fig">
+            <b>{{house_label}}</b><span>Davis over Buckhout, 2024</span>
+          </div>
+          <div class="fig">
+            <b>{{pres_old_label}}</b><span>Trump, 2024 lines</span>
+          </div>
+          <div class="fig">
+            <b>{{pres_new_label}}</b><span>Trump, 2026 lines</span>
+          </div>
+        </div>
+      </header>
 
-</head>
-<body>
-<div class="page">
-  <header class="prose">
-    <div class="eyebrow">U.S. House · North Carolina District 1 · Nov 3, 2026</div>
-    <h1>NC-1, before and after the redraw</h1>
-    <p class="lede">Don Davis won the 1st District by {{house_abs}} points in 2024. In October 2025 the legislature traded {{removed_word}} of its inland counties for {{added_word}} coastal ones, and the same 2024 voters would have given Trump an {{pres_new_int}}-point win inside the new lines instead of {{pres_old_int}}.</p>
-    <div class="figures" aria-label="Key figures">
-      <div class="fig"><b>{{house_label}}</b><span>Davis over Buckhout, 2024</span></div>
-      <div class="fig"><b>{{pres_old_label}}</b><span>Trump, 2024 lines</span></div>
-      <div class="fig"><b>{{pres_new_label}}</b><span>Trump, 2026 lines</span></div>
+      <section aria-labelledby="maps-h" style="display: grid; gap: 16px">
+        <div class="prose">
+          <h2 id="maps-h">The district, drawn both ways</h2>
+          <p>
+            Both maps use the same frame and scale. Each one outlines its own
+            district, with the other version dashed for comparison. The 2026
+            race hasn't happened yet, so switch to the 2024 presidential vote to
+            see who lives inside the new lines. Switch to precincts for detail
+            inside each county.
+          </p>
+        </div>
+        <div class="controls">
+          <span class="label" id="mode-label">Color the map by</span>
+          <div class="seg" role="group" aria-labelledby="mode-label">
+            <button type="button" id="mode-house" aria-pressed="true">
+              U.S. House race
+            </button>
+            <button type="button" id="mode-pres" aria-pressed="false">
+              2024 president
+            </button>
+          </div>
+          <span class="label" id="detail-label">Show</span>
+          <div class="seg" role="group" aria-labelledby="detail-label">
+            <button type="button" id="detail-county" aria-pressed="true">
+              Counties
+            </button>
+            <button type="button" id="detail-precinct" aria-pressed="false">
+              Precincts
+            </button>
+          </div>
+        </div>
+        <div class="maps">
+          <figure class="map" style="margin: 0">
+            <div class="map-head">
+              <h3>2024 lines</h3>
+              <span class="sub" id="sub-old"></span>
+            </div>
+            <div class="map-frame">
+              <svg id="map-old" role="img" aria-labelledby="cap-old"></svg>
+            </div>
+            <figcaption class="map-note" id="cap-old"></figcaption>
+          </figure>
+          <figure class="map" style="margin: 0">
+            <div class="map-head">
+              <h3>2026 lines</h3>
+              <span class="sub" id="sub-new"></span>
+            </div>
+            <div class="map-frame">
+              <svg id="map-new" role="img" aria-labelledby="cap-new"></svg>
+            </div>
+            <figcaption class="map-note" id="cap-new"></figcaption>
+          </figure>
+        </div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <section aria-labelledby="race-h" style="display: grid; gap: 16px">
+        <div class="prose">
+          <h2 id="race-h">Who can vote in each version</h2>
+          <p>
+            Black residents are {{race_old_black}}% of voting-age citizens in
+            the 2024 district and {{race_new_black}}% in the 2026 one. In the
+            areas added, {{race_added_white}}% of voting-age citizens are white,
+            compared with {{race_removed_white}}% in the areas removed. Each map
+            shows only its own district. Click a group in the key to pick it
+            out.
+          </p>
+        </div>
+        <div class="maps">
+          <figure class="map" style="margin: 0">
+            <div class="map-head">
+              <h3>2024 lines</h3>
+              <span class="sub" id="race-sub-old"></span>
+            </div>
+            <div class="map-frame">
+              <canvas
+                class="dots"
+                id="dots-old"
+                role="img"
+                aria-labelledby="race-cap-old"
+              ></canvas
+              ><svg class="overlay" id="race-old" aria-hidden="true"></svg>
+            </div>
+            <figcaption class="map-note" id="race-cap-old"></figcaption>
+          </figure>
+          <figure class="map" style="margin: 0">
+            <div class="map-head">
+              <h3>2026 lines</h3>
+              <span class="sub" id="race-sub-new"></span>
+            </div>
+            <div class="map-frame">
+              <canvas
+                class="dots"
+                id="dots-new"
+                role="img"
+                aria-labelledby="race-cap-new"
+              ></canvas
+              ><svg class="overlay" id="race-new" aria-hidden="true"></svg>
+            </div>
+            <figcaption class="map-note" id="race-cap-new"></figcaption>
+          </figure>
+        </div>
+        <div class="legend" id="race-legend"></div>
+        <div class="chart" style="max-width: 760px">
+          <svg
+            id="race-bars"
+            role="img"
+            aria-label="Share of voting-age citizens who are Black, white or another race or ethnicity in each version of District 1 and in the areas removed, added and kept"
+          ></svg>
+        </div>
+      </section>
+
+      <section class="two-col">
+        <div style="display: grid; gap: 14px; min-width: 0">
+          <div class="prose">
+            <h2>The same 2024 votes, counted inside each version</h2>
+            <p>
+              Every 2024 statewide race moves {{shift_min}} to {{shift_max}}
+              points toward Republicans on the new lines. Davis ran
+              {{davis_edge}} points ahead of Harris in 2024. The same edge on
+              the new lines would still lose by about {{davis_new_abs}}.
+            </p>
+          </div>
+          <div class="chart">
+            <svg
+              id="dumbbell"
+              role="img"
+              aria-label="Margins of five 2024 statewide races and the NC-1 House race on the 2024 and 2026 district lines"
+            ></svg>
+          </div>
+          <div class="legend" id="db-legend"></div>
+        </div>
+        <div style="display: grid; gap: 14px; min-width: 0">
+          <div class="prose">
+            <h2>The county swap</h2>
+            <p>
+              The {{removed_word}} counties removed voted for Trump by
+              {{removed_abs}} points combined. The {{added_word}} added, plus
+              part of Onslow, voted for him by {{added_abs}}, and they cast more
+              votes. The
+              {{kept_counties}} counties kept in both versions, plus the same
+              part of Granville, split almost exactly even.
+            </p>
+          </div>
+          <div class="chart">
+            <svg
+              id="swap"
+              role="img"
+              aria-label="2024 presidential margin in each county removed from or added to District 1"
+            ></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes">
+        <h2>How this was built</h2>
+        <ul>
+          <li>
+            District lines are the legislature's official plans: S.L. 2023-145,
+            used in 2024, and S.L. 2025-95, used in 2026. Both are whole counties
+            plus a few precincts. Both plans draw the same line through five
+            Granville precincts, and the 2026 plan also takes part of one Onslow
+            precinct, Swansboro. The lines split Salem, in Granville, and
+            Swansboro; precinct results can't be divided, so all their votes are
+            counted even though about 45% of Salem's voters and 35% of
+            Swansboro's residents are in other districts.
+          </li>
+          <li>
+            The rebuilt totals add every 2024 vote in each district's counties,
+            including early, absentee and provisional ballots, plus the
+            Granville and Swansboro precincts. Rebuilding the 2024 House race on
+            the old lines reproduces its official total exactly, and the
+            precincts match the NC-1 ballot in NCSBE's 2026 results file.
+          </li>
+          <li>
+            The county view counts every vote. The precinct view can only shade
+            votes reported by precinct. <span id="hatch-note"></span> Those
+            counties are hatched in the precinct view. Their precinct colors
+            mostly show election-day voters, who leaned more Republican than
+            early voters.
+          </li>
+          <li>
+            The race maps show citizens 18 and older, the people who can vote,
+            from the Census Bureau's 2020-2024 American Community Survey
+            estimates. Those are published for block groups; each is split
+            among its census blocks in proportion to the 2020 census count of
+            adults in each group. The total for the 2024 district matches the
+            Census Bureau's own figure for it within 0.1%. "White" and "Black"
+            are non-Hispanic and one race alone; "other" is Hispanic residents
+            of any race plus every other group. Each dot is {{people_per_dot}}
+            voting-age citizens of one group, placed at random inside their
+            census block. The 2026 district also takes in part of Swansboro, in
+            Onslow County.
+          </li>
+          <li>
+            Margins are the Democrat's share minus the Republican's share of all
+            votes cast in the race, so third-party votes count in the total.
+          </li>
+          <li>
+            The "Davis on new lines" estimate assumes he runs the same
+            {{davis_edge}} points ahead of the top of the ticket. It's a
+            yardstick, not a forecast.
+          </li>
+        </ul>
+        <p>
+          Sources:
+          <a href="https://www.ncleg.gov/Redistricting"
+            >NC General Assembly redistricting plans</a
+          >,
+          <a href="https://dl.ncsbe.gov/?prefix=ENRS/2024_11_05/"
+            >NCSBE certified 2024 precinct results</a
+          >,
+          <a href="https://dl.ncsbe.gov/?prefix=PrecinctMaps/"
+            >NCSBE precinct shapefiles</a
+          >
+          (July 2024 and August 2026),
+          <a href="https://dl.ncsbe.gov/?prefix=ENRS/2026_11_03/"
+            >NCSBE 2026 results template</a
+          >,
+          <a
+            href="https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html"
+            >2020 census redistricting data (P.L. 94-171)</a
+          >,
+          <a
+            href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html"
+            >TIGER/Line block shapes</a
+          >,
+          <a href="https://www.census.gov/programs-surveys/decennial-census/about/voting-rights/cvap.html">citizen voting-age population estimates</a>, and
+            <a href="https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html">census shoreline boundaries</a> for water.
+        </p>
+      </section>
     </div>
-  </header>
+    <div class="tip" id="tip" hidden></div>
 
-  <section aria-labelledby="maps-h" style="display:grid;gap:16px">
-    <div class="prose">
-      <h2 id="maps-h">The district, drawn both ways</h2>
-      <p>Both maps use the same frame and scale. Each one outlines its own district, with the other version dashed for comparison. The 2026 race hasn't happened yet, so switch to the 2024 presidential vote to see who lives inside the new lines. Switch to precincts for detail inside each county.</p>
-    </div>
-    <div class="controls">
-      <span class="label" id="mode-label">Color the map by</span>
-      <div class="seg" role="group" aria-labelledby="mode-label">
-        <button type="button" id="mode-house" aria-pressed="true">U.S. House race</button>
-        <button type="button" id="mode-pres" aria-pressed="false">2024 president</button>
-      </div>
-      <span class="label" id="detail-label">Show</span>
-      <div class="seg" role="group" aria-labelledby="detail-label">
-        <button type="button" id="detail-county" aria-pressed="true">Counties</button>
-        <button type="button" id="detail-precinct" aria-pressed="false">Precincts</button>
-      </div>
-    </div>
-    <div class="maps">
-      <figure class="map" style="margin:0">
-        <div class="map-head"><h3>2024 lines</h3><span class="sub" id="sub-old"></span></div>
-        <div class="map-frame"><svg id="map-old" role="img" aria-labelledby="cap-old"></svg></div>
-        <figcaption class="map-note" id="cap-old"></figcaption>
-      </figure>
-      <figure class="map" style="margin:0">
-        <div class="map-head"><h3>2026 lines</h3><span class="sub" id="sub-new"></span></div>
-        <div class="map-frame"><svg id="map-new" role="img" aria-labelledby="cap-new"></svg></div>
-        <figcaption class="map-note" id="cap-new"></figcaption>
-      </figure>
-    </div>
-    <div class="legend" id="legend"></div>
-  </section>
+    <script id="mapdata" type="application/json">
+      __MAPDATA__
+    </script>
+    <script id="rebuild" type="application/json">
+      __REBUILD__
+    </script>
+    <script id="racedata" type="application/json">
+      __RACEDATA__
+    </script>
+    <script>
+      const M = JSON.parse(document.getElementById("mapdata").textContent);
+      const R = JSON.parse(document.getElementById("rebuild").textContent);
+      const RD = JSON.parse(document.getElementById("racedata").textContent);
+      const NS = "http://www.w3.org/2000/svg";
+      const fmt = (n) => Number(n).toLocaleString("en-US");
+      const marginLabel = (m) =>
+        Math.abs(m) < 0.05
+          ? "Even"
+          : (m > 0 ? "D+" : "R+") + Math.abs(m).toFixed(1);
+      const BINS = [10, 30];
+      function fillFor(f) {
+        if (!f.t) return "var(--pending)";
+        const m = ((f.d - f.r) / f.t) * 100,
+          a = Math.abs(m);
+        if (a < 1) return "var(--mid)";
+        const step = a < BINS[0] ? 1 : a < BINS[1] ? 2 : 3;
+        return `var(--${m > 0 ? "d" : "r"}${step})`;
+      }
+      function el(tag, attrs = {}, parent) {
+        const n = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+        if (parent) parent.appendChild(n);
+        return n;
+      }
+      const HATCHED = Object.entries(M.county_unmapped)
+        .filter(([, s]) => s >= 0.25)
+        .map(([c]) => c);
 
-  <section class="two-col">
-    <div style="display:grid;gap:14px;min-width:0">
-      <div class="prose">
-        <h2>The same 2024 votes, counted inside each version</h2>
-        <p>Every 2024 statewide race moves {{shift_min}} to {{shift_max}} points toward Republicans on the new lines. Davis ran {{davis_edge}} points ahead of Harris in 2024. The same edge on the new lines would still lose by about {{davis_new_abs}}.</p>
-      </div>
-      <div class="chart"><svg id="dumbbell" role="img" aria-label="Margins of five 2024 statewide races and the NC-1 House race on the 2024 and 2026 district lines"></svg></div>
-      <div class="legend" id="db-legend"></div>
-    </div>
-    <div style="display:grid;gap:14px;min-width:0">
-      <div class="prose">
-        <h2>The county swap</h2>
-        <p>The {{removed_word}} counties removed voted for Trump by {{removed_abs}} points combined. The {{added_word}} added voted for him by {{added_abs}}, and they cast more votes. The {{kept_counties}} counties kept in both versions, plus the same part of Granville, split almost exactly even.</p>
-      </div>
-      <div class="chart"><svg id="swap" role="img" aria-label="2024 presidential margin in each county removed from or added to District 1"></svg></div>
-    </div>
-  </section>
+      const CANDS = {
+        house24: {
+          d: "Don Davis",
+          r: "Laurie Buckhout",
+          race: "2024 U.S. House",
+        },
+        pres: { d: "Kamala Harris", r: "Donald Trump", race: "2024 president" },
+      };
+      const VIEWS = {
+        house: { old: "house24", new: "house26" },
+        pres: { old: "pres_old", new: "pres_new" },
+      };
+      let mode = "house";
+      let detail = "county";
+      const layerKey = (side) =>
+        VIEWS[mode][side] + (detail === "county" ? "_cty" : "");
 
-  <section class="notes">
-    <h2>How this was built</h2>
-    <ul>
-      <li>District lines are the legislature's official plans: S.L. 2023-145, used in 2024, and S.L. 2025-95, used in 2026. Both are whole-county districts except in Granville, where both plans draw the same line through five precincts. The line splits one of them, Salem (SALM), so its votes are all counted even though about 45% of its voters are in District 13.</li>
-      <li>The rebuilt totals add every 2024 vote in each district's counties, including early, absentee and provisional ballots, plus the five Granville precincts. Rebuilding the 2024 House race on the old lines reproduces its official total exactly.</li>
-      <li>The county view counts every vote. The precinct view can only shade votes reported by precinct. <span id="hatch-note"></span> Those counties are hatched in the precinct view. Their precinct colors mostly show election-day voters, who leaned more Republican than early voters.</li>
-      <li>Margins are the Democrat's share minus the Republican's share of all votes cast in the race, so third-party votes count in the total.</li>
-      <li>The "Davis on new lines" estimate assumes he runs the same {{davis_edge}} points ahead of the top of the ticket. It's a yardstick, not a forecast.</li>
-    </ul>
-    <p>Sources: <a href="https://www.ncleg.gov/Redistricting">NC General Assembly redistricting plans</a>, <a href="https://dl.ncsbe.gov/?prefix=ENRS/2024_11_05/">NCSBE certified 2024 precinct results</a>, <a href="https://dl.ncsbe.gov/?prefix=PrecinctMaps/">NCSBE precinct shapefiles</a> (July 2024 and August 2026), <a href="https://dl.ncsbe.gov/?prefix=ENRS/2026_11_03/">NCSBE 2026 results template</a>.</p>
-  </section>
-</div>
-<div class="tip" id="tip" hidden></div>
+      // Shift a centered label that would run past the map's left or right edge
+      function keepInside(t, x) {
+        const half = t.getComputedTextLength() / 2,
+          pad = 4;
+        if (x - half < pad) t.setAttribute("x", pad + half);
+        else if (x + half > M.w - pad) t.setAttribute("x", M.w - pad - half);
+      }
 
-<script id="mapdata" type="application/json">__MAPDATA__</script>
-<script id="rebuild" type="application/json">__REBUILD__</script>
-<script>
-const M = JSON.parse(document.getElementById("mapdata").textContent);
-const R = JSON.parse(document.getElementById("rebuild").textContent);
-const NS = "http://www.w3.org/2000/svg";
-const fmt = (n) => Number(n).toLocaleString("en-US");
-const marginLabel = (m) => (Math.abs(m) < 0.05 ? "Even" : (m > 0 ? "D+" : "R+") + Math.abs(m).toFixed(1));
-const BINS = [10, 30];
-function fillFor(f) {
-  if (!f.t) return "var(--pending)";
-  const m = (f.d - f.r) / f.t * 100, a = Math.abs(m);
-  if (a < 1) return "var(--mid)";
-  const step = a < BINS[0] ? 1 : a < BINS[1] ? 2 : 3;
-  return `var(--${m > 0 ? "d" : "r"}${step})`;
-}
-function el(tag, attrs = {}, parent) {
-  const n = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
-  if (parent) parent.appendChild(n);
-  return n;
-}
-const HATCHED = Object.entries(M.county_unmapped).filter(([, s]) => s >= 0.25).map(([c]) => c);
+      function buildMap(svgId, version, own, other) {
+        const svg = document.getElementById(svgId);
+        svg.setAttribute("viewBox", `0 0 ${M.w} ${M.h}`);
+        const defs = el("defs", {}, svg);
+        const hid = svgId + "-hatch";
+        const pat = el(
+          "pattern",
+          {
+            id: hid,
+            patternUnits: "userSpaceOnUse",
+            width: 9,
+            height: 9,
+            patternTransform: "rotate(45)",
+          },
+          defs,
+        );
+        el("line", { x1: 0, y1: 0, x2: 0, y2: 9, class: "hatch-line" }, pat);
+        const precG = el("g", {}, svg);
+        // Water covers the precinct shapes, which reach into the sounds; county lines are cut to the shore and sit on top
+        el("path", { d: M.water, class: "water" }, svg);
+        const ctyG = el("g", {}, svg);
+        const hatchG = el("g", {}, svg);
+        for (const c of [...M.counties, ...M.context]) {
+          if (!c.p) continue;
+          el("path", { d: c.p, class: "cty" }, ctyG);
+          if (c[version] && HATCHED.includes(c.c))
+            el(
+              "path",
+              { d: c.p, class: "hatch-area", fill: `url(#${hid})` },
+              hatchG,
+            );
+        }
+        el("path", { d: other, class: "ghost" }, svg);
+        el("path", { d: own, class: "dist" }, svg);
+        const labG = el("g", {}, svg);
+        const aid = svgId + "-arrow";
+        const head = el(
+          "marker",
+          {
+            id: aid,
+            viewBox: "0 0 10 10",
+            refX: 9,
+            refY: 5,
+            markerWidth: 7,
+            markerHeight: 7,
+            orient: "auto-start-reverse",
+          },
+          defs,
+        );
+        el("path", { d: "M0,0L10,5L0,10Z", class: "callout-head" }, head);
+        for (const c of [...M.counties, ...M.context]) {
+          const t = el("text", { x: c.x, y: c.y + 7, class: "clabel" }, labG);
+          t.textContent = c.c;
+          keepInside(t, c.x);
+          if (c.tip)
+            el(
+              "line",
+              {
+                // Arrows start above the label unless the data gives a start point
+                x1: c.from ? c.from[0] : c.x,
+                y1: c.from ? c.from[1] : c.y - 12,
+                x2: c.tip[0],
+                y2: c.tip[1],
+                class: "callout",
+                "marker-end": `url(#${aid})`,
+              },
+              labG,
+            );
+        }
+        return { prec: precG, hatch: hatchG };
+      }
+      const gOld = buildMap("map-old", "old", M.old_outline, M.new_outline);
+      const gNew = buildMap("map-new", "new", M.new_outline, M.old_outline);
 
-const CANDS = {
-  house24: { d: "Don Davis", r: "Laurie Buckhout", race: "2024 U.S. House" },
-  pres: { d: "Kamala Harris", r: "Donald Trump", race: "2024 president" },
-};
-const VIEWS = {
-  house: { old: "house24", new: "house26" },
-  pres: { old: "pres_old", new: "pres_new" },
-};
-let mode = "house";
-let detail = "county";
-const layerKey = (side) => VIEWS[mode][side] + (detail === "county" ? "_cty" : "");
-
-// Shift a centered label that would run past the map's left or right edge
-function keepInside(t, x) {
-  const half = t.getComputedTextLength() / 2, pad = 4;
-  if (x - half < pad) t.setAttribute("x", pad + half);
-  else if (x + half > M.w - pad) t.setAttribute("x", M.w - pad - half);
-}
-
-function buildMap(svgId, version, own, other) {
-  const svg = document.getElementById(svgId);
-  svg.setAttribute("viewBox", `0 0 ${M.w} ${M.h}`);
-  const defs = el("defs", {}, svg);
-  const hid = svgId + "-hatch";
-  const pat = el("pattern", { id: hid, patternUnits: "userSpaceOnUse", width: 9, height: 9, patternTransform: "rotate(45)" }, defs);
-  el("line", { x1: 0, y1: 0, x2: 0, y2: 9, class: "hatch-line" }, pat);
-  const precG = el("g", {}, svg);
-  const ctyG = el("g", {}, svg);
-  const hatchG = el("g", {}, svg);
-  for (const c of [...M.counties, ...M.context]) {
-    if (!c.p) continue;
-    el("path", { d: c.p, class: "cty" }, ctyG);
-    if (c[version] && HATCHED.includes(c.c)) el("path", { d: c.p, class: "hatch-area", fill: `url(#${hid})` }, hatchG);
-  }
-  el("path", { d: other, class: "ghost" }, svg);
-  el("path", { d: own, class: "dist" }, svg);
-  const labG = el("g", {}, svg);
-  const aid = svgId + "-arrow";
-  const head = el("marker", { id: aid, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
-  el("path", { d: "M0,0L10,5L0,10Z", class: "callout-head" }, head);
-  for (const c of [...M.counties, ...M.context]) {
-    const t = el("text", { x: c.x, y: c.y + 7, class: "clabel" }, labG);
-    t.textContent = c.c;
-    keepInside(t, c.x);
-    if (c.tip) el("line", { x1: c.x, y1: c.y - 12, x2: c.tip[0], y2: c.tip[1], class: "callout", "marker-end": `url(#${aid})` }, labG);
-  }
-  return { prec: precG, hatch: hatchG };
-}
-const gOld = buildMap("map-old", "old", M.old_outline, M.new_outline);
-const gNew = buildMap("map-new", "new", M.new_outline, M.old_outline);
-
-function drawLayer(g, key) {
-  g.replaceChildren();
-  M.layers[key].forEach((f, i) => {
-    const p = el("path", { d: f.p ?? M.county_paths[f.c], class: "prec", fill: fillFor(f), "data-key": key, "data-i": i, tabindex: "-1" }, g);
-  });
-}
-function totals(key) {
-  const fs = M.layers[key];
-  const d = fs.reduce((s, f) => s + f.d, 0), r = fs.reduce((s, f) => s + f.r, 0), t = fs.reduce((s, f) => s + f.t, 0);
-  return { d, r, t, n: fs.length };
-}
-function render() {
-  const keyOld = layerKey("old"), keyNew = layerKey("new");
-  const county = detail === "county", unit = county ? "county" : "precinct";
-  for (const g of [gOld, gNew]) g.hatch.style.display = county ? "none" : "";
-  drawLayer(gOld.prec, keyOld);
-  drawLayer(gNew.prec, keyNew);
-  const to = totals(keyOld), tn = totals(keyNew);
-  // County layers have one row per county plus Granville's District 1 slice
-  const count = (t) => (county ? `${t.n - 1} counties and part of Granville` : `${t.n} precincts`);
-  document.getElementById("sub-old").textContent = count(to);
-  document.getElementById("sub-new").textContent = count(tn);
-  const capOld = document.getElementById("cap-old"), capNew = document.getElementById("cap-new");
-  if (mode === "house") {
-    capOld.textContent = `Davis vs. Buckhout by ${unit}. Davis won the district {{house_dem_pct}}% to {{house_rep_pct}}%.`;
-    capNew.textContent = tn.t
-      ? `Davis vs. Buckhout by ${unit}, Nov 3, 2026: Davis ${(tn.d / tn.t * 100).toFixed(1)}%, Buckhout ${(tn.r / tn.t * 100).toFixed(1)}%${county ? "" : " of votes counted in precincts"}.`
-      : "Davis vs. Buckhout rematch on the Nov 3, 2026 ballot. Results pending.";
-  } else {
-    capOld.textContent = `Harris vs. Trump by ${unit}. Trump won these lines by {{pres_old_abs}} points.`;
-    capNew.textContent = `Harris vs. Trump by ${unit}, 2024 votes in the 2026 district. Trump would have won by {{pres_new_abs}} points.`;
-  }
-  document.getElementById("mode-house").setAttribute("aria-pressed", mode === "house");
-  document.getElementById("mode-pres").setAttribute("aria-pressed", mode === "pres");
-  document.getElementById("detail-county").setAttribute("aria-pressed", county);
-  document.getElementById("detail-precinct").setAttribute("aria-pressed", !county);
-  renderLegend();
-}
-function renderLegend() {
-  const lg = document.getElementById("legend");
-  const names = mode === "house" ? ["Davis", "Buckhout"] : ["Harris", "Trump"];
-  const ramp = ["r3", "r2", "r1", "mid", "d1", "d2", "d3"].map((k) => `<i style="background:var(--${k})"></i>`).join("");
-  const also = [];
-  if (mode === "house" && !totals(layerKey("new")).t) also.push(`<div class="key"><span class="swatch" style="background:var(--pending)"></span>On the 2026 ballot, results pending</div>`);
-  if (detail === "precinct") also.push(`<div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><rect width="22" height="14" fill="var(--surface)"/><g stroke="var(--hatch)" stroke-width="1.4"><line x1="-2" y1="14" x2="12" y2="0"/><line x1="6" y1="14" x2="20" y2="0"/><line x1="14" y1="14" x2="28" y2="0"/></g></svg></span>Over half the county's votes can't be placed in a precinct</div>`);
-  lg.innerHTML = `
+      function drawLayer(g, key) {
+        g.replaceChildren();
+        M.layers[key].forEach((f, i) => {
+          const p = el(
+            "path",
+            {
+              d: f.p ?? M.county_paths[f.c],
+              class: "prec",
+              fill: fillFor(f),
+              "data-key": key,
+              "data-i": i,
+              tabindex: "-1",
+            },
+            g,
+          );
+        });
+      }
+      function totals(key) {
+        const fs = M.layers[key];
+        const d = fs.reduce((s, f) => s + f.d, 0),
+          r = fs.reduce((s, f) => s + f.r, 0),
+          t = fs.reduce((s, f) => s + f.t, 0);
+        return { d, r, t, n: fs.length };
+      }
+      function render() {
+        const keyOld = layerKey("old"),
+          keyNew = layerKey("new");
+        const county = detail === "county",
+          unit = county ? "county" : "precinct";
+        for (const g of [gOld, gNew])
+          g.hatch.style.display = county ? "none" : "";
+        drawLayer(gOld.prec, keyOld);
+        drawLayer(gNew.prec, keyNew);
+        const to = totals(keyOld),
+          tn = totals(keyNew);
+        // County layers have one row per county plus a slice of each partial county
+        const count = (key, t) => {
+          if (!county) return `${t.n} precincts`;
+          const parts = M.layers[key].filter((f) => f.part).map((f) => f.c);
+          return `${t.n - parts.length} counties and part${parts.length > 1 ? "s" : ""} of ${parts.join(" and ")}`;
+        };
+        document.getElementById("sub-old").textContent = count(keyOld, to);
+        document.getElementById("sub-new").textContent = count(keyNew, tn);
+        const capOld = document.getElementById("cap-old"),
+          capNew = document.getElementById("cap-new");
+        if (mode === "house") {
+          capOld.textContent = `Davis vs. Buckhout by ${unit}. Davis won the district {{house_dem_pct}}% to {{house_rep_pct}}%.`;
+          capNew.textContent = tn.t
+            ? `Davis vs. Buckhout by ${unit}, Nov 3, 2026: Davis ${((tn.d / tn.t) * 100).toFixed(1)}%, Buckhout ${((tn.r / tn.t) * 100).toFixed(1)}%${county ? "" : " of votes counted in precincts"}.`
+            : "Davis vs. Buckhout rematch on the Nov 3, 2026 ballot. Results pending.";
+        } else {
+          capOld.textContent = `Harris vs. Trump by ${unit}. Trump won these lines by {{pres_old_abs}} points.`;
+          capNew.textContent = `Harris vs. Trump by ${unit}, 2024 votes in the 2026 district. Trump would have won by {{pres_new_abs}} points.`;
+        }
+        document
+          .getElementById("mode-house")
+          .setAttribute("aria-pressed", mode === "house");
+        document
+          .getElementById("mode-pres")
+          .setAttribute("aria-pressed", mode === "pres");
+        document
+          .getElementById("detail-county")
+          .setAttribute("aria-pressed", county);
+        document
+          .getElementById("detail-precinct")
+          .setAttribute("aria-pressed", !county);
+        renderLegend();
+      }
+      function renderLegend() {
+        const lg = document.getElementById("legend");
+        const names =
+          mode === "house" ? ["Davis", "Buckhout"] : ["Harris", "Trump"];
+        const ramp = ["r3", "r2", "r1", "mid", "d1", "d2", "d3"]
+          .map((k) => `<i style="background:var(--${k})"></i>`)
+          .join("");
+        const also = [];
+        if (mode === "house" && !totals(layerKey("new")).t)
+          also.push(
+            `<div class="key"><span class="swatch" style="background:var(--pending)"></span>On the 2026 ballot, results pending</div>`,
+          );
+        if (detail === "precinct")
+          also.push(
+            `<div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><rect width="22" height="14" fill="var(--surface)"/><g stroke="var(--hatch)" stroke-width="1.4"><line x1="-2" y1="14" x2="12" y2="0"/><line x1="6" y1="14" x2="20" y2="0"/><line x1="14" y1="14" x2="28" y2="0"/></g></svg></span>Over half the county's votes can't be placed in a precinct</div>`,
+          );
+        lg.innerHTML = `
     <div class="group"><span class="title">${detail === "county" ? "County" : "Precinct"} margin</span>
       <div class="ramp">${ramp}</div>
       <div class="ramp-labels"><span>${names[1]} +30</span><span>Even</span><span>${names[0]} +30</span></div></div>
@@ -325,138 +1062,525 @@ function renderLegend() {
       <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--outline)" stroke-width="2.4"/></svg></span>This map's district</div>
       <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--outline)" stroke-width="1.4" stroke-dasharray="5 4"/></svg></span>The other version</div></div>
     ${also.length ? `<div class="group"><span class="title">Also shown</span>${also.join("")}</div>` : ""}`;
-}
+      }
 
-// Tooltip
-const tip = document.getElementById("tip");
-let lit = null;
-function showTip(e) {
-  const p = e.target.closest(".prec");
-  if (!p) { hideTip(); return; }
-  const key = p.dataset.key, f = M.layers[key][+p.dataset.i];
-  const byPrecinct = !key.endsWith("_cty"), hatched = byPrecinct && HATCHED.includes(f.c);
-  if (lit && lit !== p) lit.classList.remove("on");
-  lit = p; p.classList.add("on");
-  let body;
-  if (!f.t) {
-    body = `<div class="foot">Davis vs. Buckhout, Nov 3, 2026. Results pending.</div>`;
-  } else {
-    const c = key.startsWith("house") ? { ...CANDS.house24, race: key === "house26" ? "2026 U.S. House" : "2024 U.S. House" } : CANDS.pres;
-    const m = (f.d - f.r) / f.t * 100;
-    const other = f.t - f.d - f.r;
-    body = `<table>
-      <tr><td><span class="dot" style="background:var(--d3)"></span>${c.d}</td><td>${fmt(f.d)}</td><td>${(f.d / f.t * 100).toFixed(1)}%</td></tr>
-      <tr><td><span class="dot" style="background:var(--r3)"></span>${c.r}</td><td>${fmt(f.r)}</td><td>${(f.r / f.t * 100).toFixed(1)}%</td></tr>
-      ${other > 0 ? `<tr><td>Others</td><td>${fmt(other)}</td><td>${(other / f.t * 100).toFixed(1)}%</td></tr>` : ""}
+      // Tooltip
+      const tip = document.getElementById("tip");
+      let lit = null;
+      function showTip(e) {
+        const p = e.target.closest(".prec");
+        if (!p) {
+          hideTip();
+          return;
+        }
+        const key = p.dataset.key,
+          f = M.layers[key][+p.dataset.i];
+        const byPrecinct = !key.endsWith("_cty"),
+          hatched = byPrecinct && HATCHED.includes(f.c);
+        if (lit && lit !== p) lit.classList.remove("on");
+        lit = p;
+        p.classList.add("on");
+        let body;
+        if (!f.t) {
+          body = `<div class="foot">Davis vs. Buckhout, Nov 3, 2026. Results pending.</div>`;
+        } else {
+          const c = key.startsWith("house")
+            ? {
+                ...CANDS.house24,
+                race: key === "house26" ? "2026 U.S. House" : "2024 U.S. House",
+              }
+            : CANDS.pres;
+          const m = ((f.d - f.r) / f.t) * 100;
+          const other = f.t - f.d - f.r;
+          body = `<table>
+      <tr><td><span class="dot" style="background:var(--d3)"></span>${c.d}</td><td>${fmt(f.d)}</td><td>${((f.d / f.t) * 100).toFixed(1)}%</td></tr>
+      <tr><td><span class="dot" style="background:var(--r3)"></span>${c.r}</td><td>${fmt(f.r)}</td><td>${((f.r / f.t) * 100).toFixed(1)}%</td></tr>
+      ${other > 0 ? `<tr><td>Others</td><td>${fmt(other)}</td><td>${((other / f.t) * 100).toFixed(1)}%</td></tr>` : ""}
     </table><div class="foot">${c.race}: ${marginLabel(m)} · ${fmt(f.t)} ${hatched ? "election-day votes" : "votes"}</div>`;
-  }
-  let note = hatched ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>` : "";
-  if (f.part) note += `<div class="foot">District 1's five Granville precincts. One, Salem, is split, and all its votes are counted.</div>`;
-  if (f.split) note += `<div class="foot">Part of this precinct is outside District 1. ${key.startsWith("house") ? "Only its District 1 voters cast these votes." : "These are the whole precinct's votes."}</div>`;
-  tip.innerHTML = `<h4>${f.n}${byPrecinct ? `<small>${f.c} County</small>` : ""}</h4>${body}${note}`;
-  tip.hidden = false;
-  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
-  let x = e.clientX + pad, y = e.clientY + pad;
-  if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
-  if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
-  tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
-}
-function hideTip() { tip.hidden = true; if (lit) { lit.classList.remove("on"); lit = null; } }
-for (const id of ["map-old", "map-new"]) {
-  const s = document.getElementById(id);
-  s.addEventListener("pointermove", showTip);
-  s.addEventListener("pointerleave", hideTip);
-}
-document.getElementById("mode-house").addEventListener("click", () => { mode = "house"; render(); });
-document.getElementById("mode-pres").addEventListener("click", () => { mode = "pres"; render(); });
-document.getElementById("detail-county").addEventListener("click", () => { detail = "county"; render(); });
-document.getElementById("detail-precinct").addEventListener("click", () => { detail = "precinct"; render(); });
+        }
+        let note = hatched
+          ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>`
+          : "";
+        if (f.part) note += `<div class="foot">${f.part}</div>`;
+        if (f.split)
+          note += `<div class="foot">Part of this precinct is outside District 1. ${key.startsWith("house") ? "Only its District 1 voters cast these votes." : "These are the whole precinct's votes."}</div>`;
+        tip.innerHTML = `<h4>${f.n}${byPrecinct ? `<small>${f.c} County</small>` : ""}</h4>${body}${note}`;
+        tip.hidden = false;
+        const pad = 14,
+          w = tip.offsetWidth,
+          h = tip.offsetHeight;
+        let x = e.clientX + pad,
+          y = e.clientY + pad;
+        if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
+        if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+        tip.style.left = Math.max(8, x) + "px";
+        tip.style.top = Math.max(8, y) + "px";
+      }
+      function hideTip() {
+        tip.hidden = true;
+        if (lit) {
+          lit.classList.remove("on");
+          lit = null;
+        }
+      }
+      for (const id of ["map-old", "map-new"]) {
+        const s = document.getElementById(id);
+        s.addEventListener("pointermove", showTip);
+        s.addEventListener("pointerleave", hideTip);
+      }
+      document.getElementById("mode-house").addEventListener("click", () => {
+        mode = "house";
+        render();
+      });
+      document.getElementById("mode-pres").addEventListener("click", () => {
+        mode = "pres";
+        render();
+      });
+      document.getElementById("detail-county").addEventListener("click", () => {
+        detail = "county";
+        render();
+      });
+      document
+        .getElementById("detail-precinct")
+        .addEventListener("click", () => {
+          detail = "precinct";
+          render();
+        });
 
-document.getElementById("hatch-note").textContent =
-  (() => { const s = HATCHED.map((c) => M.county_unmapped[c]); return `In ${HATCHED.length} of the ${Object.keys(M.county_unmapped).length} counties shown, early votes are reported by voting site, so ${Math.round(Math.min(...s) * 100)}% to ${Math.round(Math.max(...s) * 100)}% of 2024 presidential votes sit outside any precinct.`; })();
+      document.getElementById("hatch-note").textContent = (() => {
+        const s = HATCHED.map((c) => M.county_unmapped[c]);
+        return `In ${HATCHED.length} of the ${Object.keys(M.county_unmapped).length} counties shown, early votes are reported by voting site, so ${Math.round(Math.min(...s) * 100)}% to ${Math.round(Math.max(...s) * 100)}% of 2024 presidential votes sit outside any precinct.`;
+      })();
 
-// Dumbbell: margin on 2024 lines vs 2026 lines
-(function dumbbell() {
-  const svg = document.getElementById("dumbbell");
-  const rows = R.contests.map((c) => ({ label: c.contest, a: c.old.margin, b: c.new.margin, est: false }));
-  const over = R.house_2024.margin - R.contests[0].old.margin;
-  rows.push({ label: "Davis, U.S. House", a: R.house_2024.margin, b: R.contests[0].new.margin + over, est: true });
-  const W = 640, L = 150, Rm = 24, top = 34, rowH = 40, H = top + rows.length * rowH + 30;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const x0 = -15, x1 = 12, X = (m) => L + (m - x0) / (x1 - x0) * (W - L - Rm);
-  for (const t of [-15, -10, -5, 0, 5, 10]) {
-    el("line", { x1: X(t), x2: X(t), y1: top - 8, y2: H - 26, class: t === 0 ? "zero" : "grid" }, svg);
-    const tx = el("text", { x: X(t), y: H - 8, "text-anchor": "middle" }, svg);
-    tx.textContent = t === 0 ? "Even" : (t > 0 ? "D+" : "R+") + Math.abs(t);
-  }
-  const hA = el("text", { x: X(0) - 6, y: 16, "text-anchor": "end", class: "muted" }, svg); hA.textContent = "← more Republican";
-  const hB = el("text", { x: X(0) + 6, y: 16, class: "muted" }, svg); hB.textContent = "more Democratic →";
-  rows.forEach((r, i) => {
-    const y = top + i * rowH + rowH / 2;
-    const lab = el("text", { x: L - 12, y: y + 5, "text-anchor": "end", class: "rowlabel" }, svg); lab.textContent = r.label;
-    el("line", { x1: X(r.a), x2: X(r.b), y1: y, y2: y, class: "conn" }, svg);
-    const old = el("circle", { cx: X(r.a), cy: y, r: 6, fill: "var(--surface)", stroke: "var(--ink-2)", "stroke-width": 2 }, svg);
-    const nw = el("circle", { cx: X(r.b), cy: y, r: 6, fill: r.b >= 0 ? "var(--d3)" : "var(--r3)", stroke: "var(--surface)", "stroke-width": 2 }, svg);
-    if (r.est) nw.setAttribute("stroke-dasharray", "2 2");
-    const ttl = (n, txt) => { const t = el("title", {}, n); t.textContent = txt; };
-    ttl(old, `${r.label}, 2024 lines: ${marginLabel(r.a)}`);
-    ttl(nw, `${r.label}, 2026 lines: ${marginLabel(r.b)}${r.est ? " (estimate)" : ""}`);
-    const right = r.b > r.a;
-    const lb = el("text", { x: X(r.b) + (right ? 12 : -12), y: y + 5, "text-anchor": right ? "start" : "end" }, svg);
-    lb.textContent = marginLabel(r.b) + (r.est ? " est." : "");
-    const la = el("text", { x: X(r.a) + (right ? -12 : 12), y: y + 5, "text-anchor": right ? "end" : "start", class: "muted" }, svg);
-    la.textContent = marginLabel(r.a);
-  });
-  document.getElementById("db-legend").innerHTML = `
+      // Dumbbell: margin on 2024 lines vs 2026 lines
+      (function dumbbell() {
+        const svg = document.getElementById("dumbbell");
+        const rows = R.contests.map((c) => ({
+          label: c.contest,
+          a: c.old.margin,
+          b: c.new.margin,
+          est: false,
+        }));
+        const over = R.house_2024.margin - R.contests[0].old.margin;
+        rows.push({
+          label: "Davis, U.S. House",
+          a: R.house_2024.margin,
+          b: R.contests[0].new.margin + over,
+          est: true,
+        });
+        const W = 640,
+          L = 150,
+          Rm = 24,
+          top = 34,
+          rowH = 40,
+          H = top + rows.length * rowH + 30;
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        const x0 = -15,
+          x1 = 12,
+          X = (m) => L + ((m - x0) / (x1 - x0)) * (W - L - Rm);
+        for (const t of [-15, -10, -5, 0, 5, 10]) {
+          el(
+            "line",
+            {
+              x1: X(t),
+              x2: X(t),
+              y1: top - 8,
+              y2: H - 26,
+              class: t === 0 ? "zero" : "grid",
+            },
+            svg,
+          );
+          const tx = el(
+            "text",
+            { x: X(t), y: H - 8, "text-anchor": "middle" },
+            svg,
+          );
+          tx.textContent =
+            t === 0 ? "Even" : (t > 0 ? "D+" : "R+") + Math.abs(t);
+        }
+        const hA = el(
+          "text",
+          { x: X(0) - 6, y: 16, "text-anchor": "end", class: "muted" },
+          svg,
+        );
+        hA.textContent = "← more Republican";
+        const hB = el("text", { x: X(0) + 6, y: 16, class: "muted" }, svg);
+        hB.textContent = "more Democratic →";
+        rows.forEach((r, i) => {
+          const y = top + i * rowH + rowH / 2;
+          const lab = el(
+            "text",
+            { x: L - 12, y: y + 5, "text-anchor": "end", class: "rowlabel" },
+            svg,
+          );
+          lab.textContent = r.label;
+          el(
+            "line",
+            { x1: X(r.a), x2: X(r.b), y1: y, y2: y, class: "conn" },
+            svg,
+          );
+          const old = el(
+            "circle",
+            {
+              cx: X(r.a),
+              cy: y,
+              r: 6,
+              fill: "var(--surface)",
+              stroke: "var(--ink-2)",
+              "stroke-width": 2,
+            },
+            svg,
+          );
+          const nw = el(
+            "circle",
+            {
+              cx: X(r.b),
+              cy: y,
+              r: 6,
+              fill: r.b >= 0 ? "var(--d3)" : "var(--r3)",
+              stroke: "var(--surface)",
+              "stroke-width": 2,
+            },
+            svg,
+          );
+          if (r.est) nw.setAttribute("stroke-dasharray", "2 2");
+          const ttl = (n, txt) => {
+            const t = el("title", {}, n);
+            t.textContent = txt;
+          };
+          ttl(old, `${r.label}, 2024 lines: ${marginLabel(r.a)}`);
+          ttl(
+            nw,
+            `${r.label}, 2026 lines: ${marginLabel(r.b)}${r.est ? " (estimate)" : ""}`,
+          );
+          const right = r.b > r.a;
+          const lb = el(
+            "text",
+            {
+              x: X(r.b) + (right ? 12 : -12),
+              y: y + 5,
+              "text-anchor": right ? "start" : "end",
+            },
+            svg,
+          );
+          lb.textContent = marginLabel(r.b) + (r.est ? " est." : "");
+          const la = el(
+            "text",
+            {
+              x: X(r.a) + (right ? -12 : 12),
+              y: y + 5,
+              "text-anchor": right ? "end" : "start",
+              class: "muted",
+            },
+            svg,
+          );
+          la.textContent = marginLabel(r.a);
+        });
+        document.getElementById("db-legend").innerHTML = `
     <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><circle cx="11" cy="7" r="5" fill="var(--surface)" stroke="var(--ink-2)" stroke-width="2"/></svg></span>2024 lines</div>
     <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><circle cx="11" cy="7" r="5" fill="var(--r3)"/></svg></span>2026 lines (red: Republican ahead, blue: Democrat ahead)</div>`;
-})();
+      })();
 
-// County swap: presidential margin per removed/added county
-(function swap() {
-  const svg = document.getElementById("swap");
-  const rows = R.counties.filter((c) => c.status !== "kept").sort((a, b) => (a.status === b.status ? b.margin - a.margin : a.status === "removed" ? -1 : 1));
-  const kept = R.counties.filter((c) => c.status === "kept");
-  const sum = (arr, k) => arr.reduce((s, c) => s + c[k], 0);
-  const group = (arr) => ({ m: (sum(arr, "dem") - sum(arr, "rep")) / sum(arr, "total") * 100, t: sum(arr, "total") });
-  const W = 600, L = 120, Rm = 120, rowH = 30, top = 30;
-  const sections = [["Removed", rows.filter((r) => r.status === "removed")], ["Added", rows.filter((r) => r.status === "added")]];
-  const x0 = -50, x1 = 10, X = (m) => L + (m - x0) / (x1 - x0) * (W - L - Rm);
-  const yEnd = top + (rows.length + sections.length) * rowH;
-  const H = yEnd + 66;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  for (const t of [-50, -40, -30, -20, -10, 0, 10]) {
-    el("line", { x1: X(t), x2: X(t), y1: top - 6, y2: yEnd, class: t === 0 ? "zero" : "grid" }, svg);
-    const tx = el("text", { x: X(t), y: yEnd + 18, "text-anchor": "middle" }, svg);
-    tx.textContent = t === 0 ? "Even" : (t > 0 ? "D+" : "R+") + Math.abs(t);
-  }
-  const vh = el("text", { x: W - 8, y: 16, "text-anchor": "end", class: "muted" }, svg); vh.textContent = "2024 votes cast";
-  let y = top;
-  for (const [name, list] of sections) {
-    const g = group(list);
-    const head = el("text", { x: 0, y: y + 18, class: "rowlabel", "font-weight": 600 }, svg);
-    head.textContent = `${name}: ${marginLabel(g.m)}`;
-    const ht = el("text", { x: W - 8, y: y + 18, "text-anchor": "end", class: "muted" }, svg); ht.textContent = fmt(g.t);
-    y += rowH;
-    for (const c of list) {
-      const cy = y + rowH / 2;
-      const lab = el("text", { x: L - 10, y: cy + 5, "text-anchor": "end", class: "rowlabel" }, svg); lab.textContent = c.county;
-      const a = X(Math.min(0, c.margin)), b = X(Math.max(0, c.margin));
-      const bar = el("rect", { x: a, y: cy - 8, width: Math.max(1, b - a), height: 16, rx: 3, fill: c.margin >= 0 ? "var(--d3)" : "var(--r3)" }, svg);
-      const t = el("title", {}, bar); t.textContent = `${c.county}: ${marginLabel(c.margin)}, ${fmt(c.total)} votes`;
-      const ml = el("text", { x: c.margin < 0 ? a - 6 : b + 6, y: cy + 5, "text-anchor": c.margin < 0 ? "end" : "start" }, svg);
-      ml.textContent = marginLabel(c.margin);
-      const vt = el("text", { x: W - 8, y: cy + 5, "text-anchor": "end", class: "muted" }, svg); vt.textContent = fmt(c.total);
-      y += rowH;
-    }
-  }
-  const kg = group(kept);
-  const kl = el("text", { x: 0, y: yEnd + 54, class: "rowlabel" }, svg);
-  kl.textContent = `Kept in both ({{kept_counties}} counties and part of Granville): ${marginLabel(kg.m)}`;
-  const kt = el("text", { x: W - 8, y: yEnd + 54, "text-anchor": "end", class: "muted" }, svg); kt.textContent = fmt(kg.t);
-})();
+      // County swap: presidential margin per removed/added county
+      (function swap() {
+        const svg = document.getElementById("swap");
+        const rows = R.counties
+          .filter((c) => c.status !== "kept")
+          .sort((a, b) =>
+            a.status === b.status
+              ? b.margin - a.margin
+              : a.status === "removed"
+                ? -1
+                : 1,
+          );
+        const kept = R.counties.filter((c) => c.status === "kept");
+        const sum = (arr, k) => arr.reduce((s, c) => s + c[k], 0);
+        const group = (arr) => ({
+          m: ((sum(arr, "dem") - sum(arr, "rep")) / sum(arr, "total")) * 100,
+          t: sum(arr, "total"),
+        });
+        const W = 600,
+          L = 120,
+          Rm = 120,
+          rowH = 30,
+          top = 30;
+        const sections = [
+          ["Removed", rows.filter((r) => r.status === "removed")],
+          ["Added", rows.filter((r) => r.status === "added")],
+        ];
+        const x0 = -50,
+          x1 = 10,
+          X = (m) => L + ((m - x0) / (x1 - x0)) * (W - L - Rm);
+        const yEnd = top + (rows.length + sections.length) * rowH;
+        const H = yEnd + 66;
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        for (const t of [-50, -40, -30, -20, -10, 0, 10]) {
+          el(
+            "line",
+            {
+              x1: X(t),
+              x2: X(t),
+              y1: top - 6,
+              y2: yEnd,
+              class: t === 0 ? "zero" : "grid",
+            },
+            svg,
+          );
+          const tx = el(
+            "text",
+            { x: X(t), y: yEnd + 18, "text-anchor": "middle" },
+            svg,
+          );
+          tx.textContent =
+            t === 0 ? "Even" : (t > 0 ? "D+" : "R+") + Math.abs(t);
+        }
+        const vh = el(
+          "text",
+          { x: W - 8, y: 16, "text-anchor": "end", class: "muted" },
+          svg,
+        );
+        vh.textContent = "2024 votes cast";
+        let y = top;
+        for (const [name, list] of sections) {
+          const g = group(list);
+          const head = el(
+            "text",
+            { x: 0, y: y + 18, class: "rowlabel", "font-weight": 600 },
+            svg,
+          );
+          head.textContent = `${name}: ${marginLabel(g.m)}`;
+          const ht = el(
+            "text",
+            { x: W - 8, y: y + 18, "text-anchor": "end", class: "muted" },
+            svg,
+          );
+          ht.textContent = fmt(g.t);
+          y += rowH;
+          for (const c of list) {
+            const cy = y + rowH / 2;
+            const lab = el(
+              "text",
+              { x: L - 10, y: cy + 5, "text-anchor": "end", class: "rowlabel" },
+              svg,
+            );
+            // Partial-county rows are labeled like "Onslow (Swansboro)"; shorten to fit
+            lab.textContent = c.part ? c.county.replace(/ \(.*\)/, " (part)") : c.county;
+            const a = X(Math.min(0, c.margin)),
+              b = X(Math.max(0, c.margin));
+            const bar = el(
+              "rect",
+              {
+                x: a,
+                y: cy - 8,
+                width: Math.max(1, b - a),
+                height: 16,
+                rx: 3,
+                fill: c.margin >= 0 ? "var(--d3)" : "var(--r3)",
+              },
+              svg,
+            );
+            const t = el("title", {}, bar);
+            t.textContent = `${c.county}: ${marginLabel(c.margin)}, ${fmt(c.total)} votes`;
+            // Long Republican bars reach the row labels, so their value goes inside the bar
+            const inside = c.margin < -38;
+            const ml = el(
+              "text",
+              {
+                x: inside ? a + 6 : c.margin < 0 ? a - 6 : b + 6,
+                y: cy + 5,
+                "text-anchor": inside || c.margin >= 0 ? "start" : "end",
+                ...(inside ? { style: "fill:var(--bg);font-weight:600" } : {}),
+              },
+              svg,
+            );
+            ml.textContent = marginLabel(c.margin);
+            const vt = el(
+              "text",
+              { x: W - 8, y: cy + 5, "text-anchor": "end", class: "muted" },
+              svg,
+            );
+            vt.textContent = fmt(c.total);
+            y += rowH;
+          }
+        }
+        const kg = group(kept);
+        const kl = el("text", { x: 0, y: yEnd + 54, class: "rowlabel" }, svg);
+        kl.textContent = `Kept in both ({{kept_counties}} counties and part of Granville): ${marginLabel(kg.m)}`;
+        const kt = el(
+          "text",
+          { x: W - 8, y: yEnd + 54, "text-anchor": "end", class: "muted" },
+          svg,
+        );
+        kt.textContent = fmt(kg.t);
+      })();
 
-render();
-</script>
-</body>
+      // Race dot maps: canvas dots under an SVG overlay with the same lines and labels
+      const RACE_NAMES = {
+        black: "Black",
+        white: "White",
+        other: "Other races and ethnicities",
+      };
+      const DOTS = (() => {
+        const bin = atob(RD.dots),
+          bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return new Uint16Array(bytes.buffer);
+      })();
+      // Dots are sorted kept, old only, new only
+      const [nKept, nOld, nNew] = RD.counts;
+      const RANGES = {
+        kept: [0, nKept],
+        old: [nKept, nKept + nOld],
+        new: [nKept + nOld, nKept + nOld + nNew],
+      };
+      const pct = (area, g) =>
+        (RD.districts[area][g] / RD.districts[area].total) * 100;
+      // Index into RD.groups of the group picked in the legend, or null for all
+      let raceFocus = null;
+
+      function drawDots(version) {
+        const canvas = document.getElementById("dots-" + version);
+        const w = canvas.parentElement.clientWidth,
+          h = (w * M.h) / M.w,
+          dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.height = h + "px";
+        const ctx = canvas.getContext("2d");
+        const css = getComputedStyle(document.documentElement);
+        const colors = RD.groups.map((g) =>
+          css.getPropertyValue("--race-" + g).trim(),
+        );
+        const sx = canvas.width / 65535,
+          sy = canvas.height / 16383,
+          size = Math.max(1, Math.round(dpr));
+        // With a group picked, the other groups are drawn faint and first, so the picked one sits on top
+        const paint = ([a, b]) => {
+          for (const focused of raceFocus === null ? [true] : [false, true]) {
+            ctx.globalAlpha = focused ? 1 : 0.12;
+            for (let i = a; i < b; i++) {
+              const v = DOTS[2 * i + 1], g = v >> 14;
+              if (raceFocus !== null && (g === raceFocus) !== focused) continue;
+              ctx.fillStyle = colors[g];
+              ctx.fillRect(DOTS[2 * i] * sx, (v & 16383) * sy, size, size);
+            }
+          }
+        };
+        paint(RANGES.kept);
+        paint(RANGES[version]);
+      }
+
+      for (const [version, own, other] of [
+        ["old", M.old_outline, M.new_outline],
+        ["new", M.new_outline, M.old_outline],
+      ]) {
+        buildMap("race-" + version, version, own, other).hatch.style.display =
+          "none";
+        const d = RD.districts[version];
+        document.getElementById(`race-sub-${version}`).textContent =
+          `${fmt(d.total)} voting-age citizens`;
+        document.getElementById(`race-cap-${version}`).textContent =
+          `${pct(version, "black").toFixed(0)}% Black, ${pct(version, "white").toFixed(0)}% white, ${pct(version, "other").toFixed(0)}% other races and ethnicities. One dot for every {{people_per_dot}} voting-age citizens, 2020-2024 estimates.`;
+      }
+      document.getElementById("race-legend").innerHTML = `
+  <div class="group"><span class="title">One dot = {{people_per_dot}} voting-age citizens</span>
+    ${RD.groups.map((g, i) => `<button type="button" class="key race-key" data-g="${i}" aria-pressed="false"><span class="dot" style="background:var(--race-${g})"></span>${RACE_NAMES[g]}</button>`).join("")}</div>
+  <div class="group"><span class="title">Lines</span>
+    <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--outline)" stroke-width="2.4"/></svg></span>This map's district</div>
+    <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--outline)" stroke-width="1.4" stroke-dasharray="5 4"/></svg></span>The other version</div></div>`;
+      const redrawDots = () => {
+        drawDots("old");
+        drawDots("new");
+      };
+      // Click a group in the legend to pick it out on the maps and bars; click again to show all
+      function setRaceFocus(i) {
+        raceFocus = raceFocus === i ? null : i;
+        for (const b of document.querySelectorAll(".race-key")) {
+          const g = +b.dataset.g;
+          b.setAttribute("aria-pressed", raceFocus === g);
+          b.classList.toggle("dim", raceFocus !== null && raceFocus !== g);
+        }
+        for (const r of document.querySelectorAll(".race-seg"))
+          r.classList.toggle("dim", raceFocus !== null && +r.dataset.g !== raceFocus);
+        redrawDots();
+      }
+      for (const b of document.querySelectorAll(".race-key"))
+        b.addEventListener("click", () => setRaceFocus(+b.dataset.g));
+      new ResizeObserver(redrawDots).observe(
+        document.querySelector("#dots-old").parentElement,
+      );
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", redrawDots);
+
+      // Race composition: 100% bars for each version and the areas that changed
+      (function raceBars() {
+        const svg = document.getElementById("race-bars");
+        const rows = [
+          ["2024 district", "old"],
+          ["2026 district", "new"],
+          ["Removed", "removed"],
+          ["Added", "added"],
+          ["Kept in both", "kept"],
+        ];
+        const W = 640,
+          L = 130,
+          Rm = 90,
+          rowH = 34,
+          top = 8,
+          gap = 16;
+        const H = top + rows.length * rowH + gap + 4;
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        const X = (p) => L + (p / 100) * (W - L - Rm);
+        rows.forEach(([label, area], i) => {
+          const y = top + i * rowH + (i >= 2 ? gap : 0);
+          const lab = el(
+            "text",
+            { x: L - 10, y: y + 18, "text-anchor": "end", class: "rowlabel" },
+            svg,
+          );
+          lab.textContent = label;
+          let at = 0;
+          for (const [gi, g] of RD.groups.entries()) {
+            const p = pct(area, g);
+            const seg = el("g", { class: "race-seg", "data-g": gi }, svg);
+            const r = el(
+              "rect",
+              {
+                x: X(at),
+                y: y + 3,
+                width: Math.max(0, X(at + p) - X(at) - 1),
+                height: 22,
+                fill: `var(--race-${g})`,
+              },
+              seg,
+            );
+            const t = el("title", {}, r);
+            t.textContent = `${label}: ${p.toFixed(1)}% ${RACE_NAMES[g].toLowerCase()}`;
+            if (p >= 8) {
+              const v = el(
+                "text",
+                {
+                  x: X(at) + 6,
+                  y: y + 19,
+                  style: `fill:var(--race-${g}-ink);font-weight:600`,
+                },
+                seg,
+              );
+              v.textContent = p.toFixed(0) + "%";
+            }
+            at += p;
+          }
+          const n = el(
+            "text",
+            { x: W - 4, y: y + 19, "text-anchor": "end", class: "muted" },
+            svg,
+          );
+          n.textContent = fmt(RD.districts[area].total);
+        });
+      })();
+
+      render();
+    </script>
+  </body>
 </html>
