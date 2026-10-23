@@ -66,7 +66,7 @@ p { margin: 0; }
 .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .maps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 28px; }
-.map { display: grid; gap: 10px; min-width: 0; }
+.map { display: grid; gap: 10px; min-width: 0; align-content: start; }
 .map-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .map-head h3 { font-family: var(--font-display); font-weight: 650; font-size: 22px; margin: 0; }
 .map-head .sub { font-family: var(--font-data); font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
@@ -136,13 +136,18 @@ p { margin: 0; }
   <section aria-labelledby="maps-h" style="display:grid;gap:16px">
     <div class="prose">
       <h2 id="maps-h">The district, drawn both ways</h2>
-      <p>Both maps use the same frame and scale. Each one outlines its own district, with the other version dashed for comparison. The 2026 race hasn't happened yet, so switch to the 2024 presidential vote to see who lives inside the new lines.</p>
+      <p>Both maps use the same frame and scale. Each one outlines its own district, with the other version dashed for comparison. The 2026 race hasn't happened yet, so switch to the 2024 presidential vote to see who lives inside the new lines. Switch to precincts for detail inside each county.</p>
     </div>
     <div class="controls">
-      <span class="label" id="mode-label">Color precincts by</span>
+      <span class="label" id="mode-label">Color the map by</span>
       <div class="seg" role="group" aria-labelledby="mode-label">
         <button type="button" id="mode-house" aria-pressed="true">U.S. House race</button>
         <button type="button" id="mode-pres" aria-pressed="false">2024 president</button>
+      </div>
+      <span class="label" id="detail-label">Show</span>
+      <div class="seg" role="group" aria-labelledby="detail-label">
+        <button type="button" id="detail-county" aria-pressed="true">Counties</button>
+        <button type="button" id="detail-precinct" aria-pressed="false">Precincts</button>
       </div>
     </div>
     <div class="maps">
@@ -183,7 +188,7 @@ p { margin: 0; }
     <ul>
       <li>District lines are the legislature's official plans: S.L. 2023-145, used in 2024, and S.L. 2025-95, used in 2026. Both are whole-county districts except in Granville, where both plans draw the same line through five precincts. The line splits one of them, Salem (SALM), so its votes are all counted even though about 45% of its voters are in District 13.</li>
       <li>The rebuilt totals add every 2024 vote in each district's counties, including early, absentee and provisional ballots, plus the five Granville precincts. Rebuilding the 2024 House race on the old lines reproduces its official total exactly.</li>
-      <li>The maps can only shade votes reported by precinct. <span id="hatch-note"></span> Those counties are hatched. Their precinct colors mostly show election-day voters, who leaned more Republican than early voters.</li>
+      <li>The county view counts every vote. The precinct view can only shade votes reported by precinct. <span id="hatch-note"></span> Those counties are hatched in the precinct view. Their precinct colors mostly show election-day voters, who leaned more Republican than early voters.</li>
       <li>Margins are the Democrat's share minus the Republican's share of all votes cast in the race, so third-party votes count in the total.</li>
       <li>The "Davis on new lines" estimate assumes he runs the same {{davis_edge}} points ahead of the top of the ticket. It's a yardstick, not a forecast.</li>
     </ul>
@@ -225,6 +230,8 @@ const VIEWS = {
   pres: { old: "pres_old", new: "pres_new" },
 };
 let mode = "house";
+let detail = "county";
+const layerKey = (side) => VIEWS[mode][side] + (detail === "county" ? "_cty" : "");
 
 // Shift a centered label that would run past the map's left or right edge
 function keepInside(t, x) {
@@ -260,7 +267,7 @@ function buildMap(svgId, version, own, other) {
     keepInside(t, c.x);
     if (c.tip) el("line", { x1: c.x, y1: c.y - 12, x2: c.tip[0], y2: c.tip[1], class: "callout", "marker-end": `url(#${aid})` }, labG);
   }
-  return precG;
+  return { prec: precG, hatch: hatchG };
 }
 const gOld = buildMap("map-old", "old", M.old_outline, M.new_outline);
 const gNew = buildMap("map-new", "new", M.new_outline, M.old_outline);
@@ -268,7 +275,7 @@ const gNew = buildMap("map-new", "new", M.new_outline, M.old_outline);
 function drawLayer(g, key) {
   g.replaceChildren();
   M.layers[key].forEach((f, i) => {
-    const p = el("path", { d: f.p, class: "prec", fill: fillFor(f), "data-key": key, "data-i": i, tabindex: "-1" }, g);
+    const p = el("path", { d: f.p ?? M.county_paths[f.c], class: "prec", fill: fillFor(f), "data-key": key, "data-i": i, tabindex: "-1" }, g);
   });
 }
 function totals(key) {
@@ -277,40 +284,47 @@ function totals(key) {
   return { d, r, t, n: fs.length };
 }
 function render() {
-  const v = VIEWS[mode];
-  drawLayer(gOld, v.old);
-  drawLayer(gNew, v.new);
-  const to = totals(v.old), tn = totals(v.new);
-  document.getElementById("sub-old").textContent = `${to.n} precincts`;
-  document.getElementById("sub-new").textContent = `${tn.n} precincts`;
+  const keyOld = layerKey("old"), keyNew = layerKey("new");
+  const county = detail === "county", unit = county ? "county" : "precinct";
+  for (const g of [gOld, gNew]) g.hatch.style.display = county ? "none" : "";
+  drawLayer(gOld.prec, keyOld);
+  drawLayer(gNew.prec, keyNew);
+  const to = totals(keyOld), tn = totals(keyNew);
+  // County layers have one row per county plus Granville's District 1 slice
+  const count = (t) => (county ? `${t.n - 1} counties and part of Granville` : `${t.n} precincts`);
+  document.getElementById("sub-old").textContent = count(to);
+  document.getElementById("sub-new").textContent = count(tn);
   const capOld = document.getElementById("cap-old"), capNew = document.getElementById("cap-new");
   if (mode === "house") {
-    capOld.textContent = "Davis vs. Buckhout by precinct. Davis won the district {{house_dem_pct}}% to {{house_rep_pct}}%.";
+    capOld.textContent = `Davis vs. Buckhout by ${unit}. Davis won the district {{house_dem_pct}}% to {{house_rep_pct}}%.`;
     capNew.textContent = tn.t
-      ? `Davis vs. Buckhout by precinct, Nov 3, 2026: Davis ${(tn.d / tn.t * 100).toFixed(1)}%, Buckhout ${(tn.r / tn.t * 100).toFixed(1)}% of votes counted in precincts.`
+      ? `Davis vs. Buckhout by ${unit}, Nov 3, 2026: Davis ${(tn.d / tn.t * 100).toFixed(1)}%, Buckhout ${(tn.r / tn.t * 100).toFixed(1)}%${county ? "" : " of votes counted in precincts"}.`
       : "Davis vs. Buckhout rematch on the Nov 3, 2026 ballot. Results pending.";
   } else {
-    capOld.textContent = "Harris vs. Trump by precinct. Trump won these lines by {{pres_old_abs}} points.";
-    capNew.textContent = "Harris vs. Trump by precinct, 2024 votes in the 2026 district. Trump would have won by {{pres_new_abs}} points.";
+    capOld.textContent = `Harris vs. Trump by ${unit}. Trump won these lines by {{pres_old_abs}} points.`;
+    capNew.textContent = `Harris vs. Trump by ${unit}, 2024 votes in the 2026 district. Trump would have won by {{pres_new_abs}} points.`;
   }
   document.getElementById("mode-house").setAttribute("aria-pressed", mode === "house");
   document.getElementById("mode-pres").setAttribute("aria-pressed", mode === "pres");
+  document.getElementById("detail-county").setAttribute("aria-pressed", county);
+  document.getElementById("detail-precinct").setAttribute("aria-pressed", !county);
   renderLegend();
 }
 function renderLegend() {
   const lg = document.getElementById("legend");
   const names = mode === "house" ? ["Davis", "Buckhout"] : ["Harris", "Trump"];
   const ramp = ["r3", "r2", "r1", "mid", "d1", "d2", "d3"].map((k) => `<i style="background:var(--${k})"></i>`).join("");
+  const also = [];
+  if (mode === "house" && !totals(layerKey("new")).t) also.push(`<div class="key"><span class="swatch" style="background:var(--pending)"></span>On the 2026 ballot, results pending</div>`);
+  if (detail === "precinct") also.push(`<div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><rect width="22" height="14" fill="var(--surface)"/><g stroke="var(--hatch)" stroke-width="1.4"><line x1="-2" y1="14" x2="12" y2="0"/><line x1="6" y1="14" x2="20" y2="0"/><line x1="14" y1="14" x2="28" y2="0"/></g></svg></span>Over half the county's votes can't be placed in a precinct</div>`);
   lg.innerHTML = `
-    <div class="group"><span class="title">Precinct margin</span>
+    <div class="group"><span class="title">${detail === "county" ? "County" : "Precinct"} margin</span>
       <div class="ramp">${ramp}</div>
       <div class="ramp-labels"><span>${names[1]} +30</span><span>Even</span><span>${names[0]} +30</span></div></div>
     <div class="group"><span class="title">Lines</span>
       <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--outline)" stroke-width="2.4"/></svg></span>This map's district</div>
       <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><line x1="1" y1="7" x2="21" y2="7" stroke="var(--outline)" stroke-width="1.4" stroke-dasharray="5 4"/></svg></span>The other version</div></div>
-    <div class="group"><span class="title">Also shown</span>
-      ${mode === "house" && !totals("house26").t ? `<div class="key"><span class="swatch" style="background:var(--pending)"></span>On the 2026 ballot, results pending</div>` : ""}
-      <div class="key"><span class="swatch"><svg viewBox="0 0 22 14"><rect width="22" height="14" fill="var(--surface)"/><g stroke="var(--hatch)" stroke-width="1.4"><line x1="-2" y1="14" x2="12" y2="0"/><line x1="6" y1="14" x2="20" y2="0"/><line x1="14" y1="14" x2="28" y2="0"/></g></svg></span>Over half the county's votes can't be placed in a precinct</div></div>`;
+    ${also.length ? `<div class="group"><span class="title">Also shown</span>${also.join("")}</div>` : ""}`;
 }
 
 // Tooltip
@@ -320,6 +334,7 @@ function showTip(e) {
   const p = e.target.closest(".prec");
   if (!p) { hideTip(); return; }
   const key = p.dataset.key, f = M.layers[key][+p.dataset.i];
+  const byPrecinct = !key.endsWith("_cty"), hatched = byPrecinct && HATCHED.includes(f.c);
   if (lit && lit !== p) lit.classList.remove("on");
   lit = p; p.classList.add("on");
   let body;
@@ -333,11 +348,12 @@ function showTip(e) {
       <tr><td><span class="dot" style="background:var(--d3)"></span>${c.d}</td><td>${fmt(f.d)}</td><td>${(f.d / f.t * 100).toFixed(1)}%</td></tr>
       <tr><td><span class="dot" style="background:var(--r3)"></span>${c.r}</td><td>${fmt(f.r)}</td><td>${(f.r / f.t * 100).toFixed(1)}%</td></tr>
       ${other > 0 ? `<tr><td>Others</td><td>${fmt(other)}</td><td>${(other / f.t * 100).toFixed(1)}%</td></tr>` : ""}
-    </table><div class="foot">${c.race}: ${marginLabel(m)} · ${fmt(f.t)} ${HATCHED.includes(f.c) ? "election-day votes" : "votes"}</div>`;
+    </table><div class="foot">${c.race}: ${marginLabel(m)} · ${fmt(f.t)} ${hatched ? "election-day votes" : "votes"}</div>`;
   }
-  let note = HATCHED.includes(f.c) ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>` : "";
+  let note = hatched ? `<div class="foot">${Math.round(M.county_unmapped[f.c] * 100)}% of ${f.c} County's votes aren't in any precinct.</div>` : "";
+  if (f.part) note += `<div class="foot">District 1's five Granville precincts. One, Salem, is split, and all its votes are counted.</div>`;
   if (f.split) note += `<div class="foot">Part of this precinct is outside District 1. ${key.startsWith("house") ? "Only its District 1 voters cast these votes." : "These are the whole precinct's votes."}</div>`;
-  tip.innerHTML = `<h4>${f.n}<small>${f.c} County</small></h4>${body}${note}`;
+  tip.innerHTML = `<h4>${f.n}${byPrecinct ? `<small>${f.c} County</small>` : ""}</h4>${body}${note}`;
   tip.hidden = false;
   const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
   let x = e.clientX + pad, y = e.clientY + pad;
@@ -353,6 +369,8 @@ for (const id of ["map-old", "map-new"]) {
 }
 document.getElementById("mode-house").addEventListener("click", () => { mode = "house"; render(); });
 document.getElementById("mode-pres").addEventListener("click", () => { mode = "pres"; render(); });
+document.getElementById("detail-county").addEventListener("click", () => { detail = "county"; render(); });
+document.getElementById("detail-precinct").addEventListener("click", () => { detail = "precinct"; render(); });
 
 document.getElementById("hatch-note").textContent =
   (() => { const s = HATCHED.map((c) => M.county_unmapped[c]); return `In ${HATCHED.length} of the ${Object.keys(M.county_unmapped).length} counties shown, early votes are reported by voting site, so ${Math.round(Math.min(...s) * 100)}% to ${Math.round(Math.max(...s) * 100)}% of 2024 presidential votes sit outside any precinct.`; })();

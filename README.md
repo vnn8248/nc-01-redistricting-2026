@@ -4,7 +4,7 @@ How the October 2025 redraw changed North Carolina's 1st Congressional District,
 
 The project builds one self-contained page, `site/index.html`, with:
 
-- before-and-after precinct maps of the 2024 and 2026 districts, colored by the House race or the 2024 presidential vote
+- before-and-after maps of the 2024 and 2026 districts, by county (the default) or by precinct, colored by the House race or the 2024 presidential vote
 - 2024 statewide results rebuilt inside each version of the district
 - the counties traded in the redraw and how they voted
 
@@ -31,7 +31,7 @@ Both versions of District 1 are whole-county districts except Granville, where b
 
 West Oxford Elementary (WOEL) is wholly in District 13 according to the plan shapefiles and the NCSBE voter file, but one 2024 WOEL ballot was counted in the NC-1 race. It's left out of the rebuild; the House check allows for that one vote. `scripts/rebuild.py` checks the method by rebuilding the 2024 House race on the old lines, which must match its official total.
 
-The maps can only shade votes reported by precinct. Some counties report early votes by voting site, so 52% to 78% of their votes can't be placed in a precinct; the page hatches those counties. NCSBE's later precinct-sort files would assign those votes to precincts, but NCSBE adds statistical noise to them and says they shouldn't be used for reporting, so they aren't used here.
+The county view uses every vote, the same rows as the rebuilt totals. The precinct view can only shade votes reported by precinct. Some counties report early votes by voting site, so 52% to 78% of their votes can't be placed in a precinct; the precinct view hatches those counties. NCSBE's later precinct-sort files would assign those votes to precincts, but NCSBE adds statistical noise to them and says they shouldn't be used for reporting, so they aren't used here.
 
 Margins are the Democrat's share minus the Republican's share of all votes in the race, third parties included.
 

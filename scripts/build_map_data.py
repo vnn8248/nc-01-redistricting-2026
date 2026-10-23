@@ -14,6 +14,10 @@ Layers
 Granville precincts are clipped to the district line, so a split precinct only
 shades its District 1 part.
 
+Each layer also has a county version (house24_cty, ...) built from every vote
+type, the same rows rebuild.py counts. Granville's county shape is its District 1
+part, and its results are the District 1 precincts.
+
 Only votes reported by precinct can be mapped. `county_unmapped` gives each
 county's share of 2024 presidential votes in administrative units (early
 voting sites, absentee, provisional).
@@ -37,7 +41,7 @@ from config import (  # noqa: E402
     CONTEXT_COUNTIES, CRS, GRANVILLE_PRECINCTS, GRANVILLE_SPLIT, HOUSE_CONTEST, NEW_COUNTIES, OLD_COUNTIES, PLAN_2023,
     PLAN_2025, PRECINCTS_2024, PRECINCTS_2026, PROCESSED, RESULTS_2024, RESULTS_2026,
 )
-from rebuild import load_results  # noqa: E402
+from rebuild import district_rows, load_results  # noqa: E402
 
 WIDTH = 1000
 SIMPLIFY_METERS = 120
@@ -150,6 +154,33 @@ def county_outlines(frame, precincts, counties, district=None):
     return features
 
 
+def county_shapes(frame, precincts, counties, district):
+    outlines = precincts.reset_index().dissolve(by="county")
+    shapes = {}
+    for county in counties:
+        geometry = outlines.loc[county, "geometry"]
+        if county == "GRANVILLE":
+            geometry = geometry.intersection(district)
+        shapes[county] = frame.path(geometry)
+    return shapes
+
+
+def county_layer(contest_rows, counties):
+    """One feature per county in the district, from every vote type. Shapes are in county_paths."""
+
+    rows = district_rows(contest_rows, counties)
+    features = []
+    for county in sorted(set(counties) | {"GRANVILLE"}):
+        own = rows[rows["County"] == county]
+        by_party = own.groupby("Choice Party")["votes"].sum()
+        feature = {"c": county.title(), "n": f"{county.title()} County",
+                   "d": int(by_party.get("DEM", 0)), "r": int(by_party.get("REP", 0)), "t": int(own["votes"].sum())}
+        if county == "GRANVILLE":
+            feature["part"] = 1
+        features.append(feature)
+    return features
+
+
 def unmapped_share(contest_rows, counties):
     rows = contest_rows[contest_rows["County"].isin(counties)]
     total = rows.groupby("County")["votes"].sum()
@@ -172,6 +203,8 @@ def main():
     house26 = precinct_results(results26[results26["Contest Name"] == HOUSE_CONTEST])
 
     counties = sorted(set(OLD_COUNTIES) | set(NEW_COUNTIES) | {"GRANVILLE"})
+    house24_rows = results24[results24["Contest Name"] == HOUSE_CONTEST]
+    house26_rows = results26[results26["Contest Name"] == HOUSE_CONTEST]
 
     out = {
         "w": WIDTH,
@@ -180,11 +213,16 @@ def main():
         "new_outline": frame.path(new_shape),
         "counties": county_outlines(frame, p26, counties, old_shape | new_shape),
         "context": county_outlines(frame, p26, CONTEXT_COUNTIES),
+        "county_paths": {c.title(): p for c, p in county_shapes(frame, p26, counties, old_shape | new_shape).items()},
         "layers": {
             "house24": layer(frame, p24, house24, old_shape, OLD_COUNTIES),
             "pres_old": layer(frame, p24, pres_by_precinct, old_shape, OLD_COUNTIES),
             "pres_new": layer(frame, p24, pres_by_precinct, new_shape, NEW_COUNTIES),
             "house26": layer(frame, p26, house26, new_shape, NEW_COUNTIES),
+            "house24_cty": county_layer(house24_rows, OLD_COUNTIES),
+            "pres_old_cty": county_layer(pres, OLD_COUNTIES),
+            "pres_new_cty": county_layer(pres, NEW_COUNTIES),
+            "house26_cty": county_layer(house26_rows, NEW_COUNTIES),
         },
         "county_unmapped": unmapped_share(pres, counties),
     }
